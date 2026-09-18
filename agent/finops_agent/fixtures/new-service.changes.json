@@ -1,0 +1,15 @@
+{
+ "note": "A service with no history shows up: someone created an OpenSearch domain overnight.",
+ "changes": [
+  {
+   "day_offset": 0,
+   "time": "00:35",
+   "event_name": "CreateDomain",
+   "event_source": "es.amazonaws.com",
+   "actor": "alice",
+   "resources": [
+    "AWS::OpenSearch::Domain:logs-experiment"
+   ]
+  }
+ ]
+}

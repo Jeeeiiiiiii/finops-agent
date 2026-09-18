@@ -1,0 +1,495 @@
+{
+ "note": "NAT spike plus an RDS instance-class change on the same day. Ordered by dollar impact.",
+ "costs": [
+  {
+   "day_offset": -13,
+   "service": "Amazon Elastic Compute Cloud - Compute",
+   "usd": 40.6194
+  },
+  {
+   "day_offset": -12,
+   "service": "Amazon Elastic Compute Cloud - Compute",
+   "usd": 40.0492
+  },
+  {
+   "day_offset": -11,
+   "service": "Amazon Elastic Compute Cloud - Compute",
+   "usd": 41.6975
+  },
+  {
+   "day_offset": -10,
+   "service": "Amazon Elastic Compute Cloud - Compute",
+   "usd": 39.7908
+  },
+  {
+   "day_offset": -9,
+   "service": "Amazon Elastic Compute Cloud - Compute",
+   "usd": 41.3183
+  },
+  {
+   "day_offset": -8,
+   "service": "Amazon Elastic Compute Cloud - Compute",
+   "usd": 40.7573
+  },
+  {
+   "day_offset": -7,
+   "service": "Amazon Elastic Compute Cloud - Compute",
+   "usd": 39.7432
+  },
+  {
+   "day_offset": -6,
+   "service": "Amazon Elastic Compute Cloud - Compute",
+   "usd": 41.2245
+  },
+  {
+   "day_offset": -5,
+   "service": "Amazon Elastic Compute Cloud - Compute",
+   "usd": 39.6756
+  },
+  {
+   "day_offset": -4,
+   "service": "Amazon Elastic Compute Cloud - Compute",
+   "usd": 40.9813
+  },
+  {
+   "day_offset": -3,
+   "service": "Amazon Elastic Compute Cloud - Compute",
+   "usd": 39.7822
+  },
+  {
+   "day_offset": -2,
+   "service": "Amazon Elastic Compute Cloud - Compute",
+   "usd": 39.851
+  },
+  {
+   "day_offset": -1,
+   "service": "Amazon Elastic Compute Cloud - Compute",
+   "usd": 40.9512
+  },
+  {
+   "day_offset": 0,
+   "service": "Amazon Elastic Compute Cloud - Compute",
+   "usd": 42.2773
+  },
+  {
+   "day_offset": -13,
+   "service": "Amazon Relational Database Service",
+   "usd": 18.1857
+  },
+  {
+   "day_offset": -12,
+   "service": "Amazon Relational Database Service",
+   "usd": 18.3349
+  },
+  {
+   "day_offset": -11,
+   "service": "Amazon Relational Database Service",
+   "usd": 18.9411
+  },
+  {
+   "day_offset": -10,
+   "service": "Amazon Relational Database Service",
+   "usd": 19.4216
+  },
+  {
+   "day_offset": -9,
+   "service": "Amazon Relational Database Service",
+   "usd": 18.8657
+  },
+  {
+   "day_offset": -8,
+   "service": "Amazon Relational Database Service",
+   "usd": 18.595
+  },
+  {
+   "day_offset": -7,
+   "service": "Amazon Relational Database Service",
+   "usd": 19.4644
+  },
+  {
+   "day_offset": -6,
+   "service": "Amazon Relational Database Service",
+   "usd": 18.0699
+  },
+  {
+   "day_offset": -5,
+   "service": "Amazon Relational Database Service",
+   "usd": 19.2877
+  },
+  {
+   "day_offset": -4,
+   "service": "Amazon Relational Database Service",
+   "usd": 18.4344
+  },
+  {
+   "day_offset": -3,
+   "service": "Amazon Relational Database Service",
+   "usd": 18.2164
+  },
+  {
+   "day_offset": -2,
+   "service": "Amazon Relational Database Service",
+   "usd": 18.1767
+  },
+  {
+   "day_offset": -1,
+   "service": "Amazon Relational Database Service",
+   "usd": 18.4627
+  },
+  {
+   "day_offset": 0,
+   "service": "Amazon Relational Database Service",
+   "usd": 29.1242
+  },
+  {
+   "day_offset": -13,
+   "service": "Amazon Simple Storage Service",
+   "usd": 6.1391
+  },
+  {
+   "day_offset": -12,
+   "service": "Amazon Simple Storage Service",
+   "usd": 6.3411
+  },
+  {
+   "day_offset": -11,
+   "service": "Amazon Simple Storage Service",
+   "usd": 6.37
+  },
+  {
+   "day_offset": -10,
+   "service": "Amazon Simple Storage Service",
+   "usd": 6.2357
+  },
+  {
+   "day_offset": -9,
+   "service": "Amazon Simple Storage Service",
+   "usd": 6.3241
+  },
+  {
+   "day_offset": -8,
+   "service": "Amazon Simple Storage Service",
+   "usd": 6.0796
+  },
+  {
+   "day_offset": -7,
+   "service": "Amazon Simple Storage Service",
+   "usd": 6.078
+  },
+  {
+   "day_offset": -6,
+   "service": "Amazon Simple Storage Service",
+   "usd": 6.1518
+  },
+  {
+   "day_offset": -5,
+   "service": "Amazon Simple Storage Service",
+   "usd": 6.3909
+  },
+  {
+   "day_offset": -4,
+   "service": "Amazon Simple Storage Service",
+   "usd": 6.2635
+  },
+  {
+   "day_offset": -3,
+   "service": "Amazon Simple Storage Service",
+   "usd": 6.2063
+  },
+  {
+   "day_offset": -2,
+   "service": "Amazon Simple Storage Service",
+   "usd": 6.3431
+  },
+  {
+   "day_offset": -1,
+   "service": "Amazon Simple Storage Service",
+   "usd": 6.2764
+  },
+  {
+   "day_offset": 0,
+   "service": "Amazon Simple Storage Service",
+   "usd": 6.1991
+  },
+  {
+   "day_offset": -13,
+   "service": "AWS Lambda",
+   "usd": 2.1495
+  },
+  {
+   "day_offset": -12,
+   "service": "AWS Lambda",
+   "usd": 2.1334
+  },
+  {
+   "day_offset": -11,
+   "service": "AWS Lambda",
+   "usd": 2.057
+  },
+  {
+   "day_offset": -10,
+   "service": "AWS Lambda",
+   "usd": 2.1125
+  },
+  {
+   "day_offset": -9,
+   "service": "AWS Lambda",
+   "usd": 2.1042
+  },
+  {
+   "day_offset": -8,
+   "service": "AWS Lambda",
+   "usd": 2.163
+  },
+  {
+   "day_offset": -7,
+   "service": "AWS Lambda",
+   "usd": 2.1385
+  },
+  {
+   "day_offset": -6,
+   "service": "AWS Lambda",
+   "usd": 2.0644
+  },
+  {
+   "day_offset": -5,
+   "service": "AWS Lambda",
+   "usd": 2.1807
+  },
+  {
+   "day_offset": -4,
+   "service": "AWS Lambda",
+   "usd": 2.0358
+  },
+  {
+   "day_offset": -3,
+   "service": "AWS Lambda",
+   "usd": 2.0862
+  },
+  {
+   "day_offset": -2,
+   "service": "AWS Lambda",
+   "usd": 2.1432
+  },
+  {
+   "day_offset": -1,
+   "service": "AWS Lambda",
+   "usd": 2.0415
+  },
+  {
+   "day_offset": 0,
+   "service": "AWS Lambda",
+   "usd": 2.0981
+  },
+  {
+   "day_offset": -13,
+   "service": "AmazonCloudWatch",
+   "usd": 3.3228
+  },
+  {
+   "day_offset": -12,
+   "service": "AmazonCloudWatch",
+   "usd": 3.4964
+  },
+  {
+   "day_offset": -11,
+   "service": "AmazonCloudWatch",
+   "usd": 3.523
+  },
+  {
+   "day_offset": -10,
+   "service": "AmazonCloudWatch",
+   "usd": 3.4702
+  },
+  {
+   "day_offset": -9,
+   "service": "AmazonCloudWatch",
+   "usd": 3.5536
+  },
+  {
+   "day_offset": -8,
+   "service": "AmazonCloudWatch",
+   "usd": 3.3986
+  },
+  {
+   "day_offset": -7,
+   "service": "AmazonCloudWatch",
+   "usd": 3.5039
+  },
+  {
+   "day_offset": -6,
+   "service": "AmazonCloudWatch",
+   "usd": 3.476
+  },
+  {
+   "day_offset": -5,
+   "service": "AmazonCloudWatch",
+   "usd": 3.4721
+  },
+  {
+   "day_offset": -4,
+   "service": "AmazonCloudWatch",
+   "usd": 3.4379
+  },
+  {
+   "day_offset": -3,
+   "service": "AmazonCloudWatch",
+   "usd": 3.5438
+  },
+  {
+   "day_offset": -2,
+   "service": "AmazonCloudWatch",
+   "usd": 3.5727
+  },
+  {
+   "day_offset": -1,
+   "service": "AmazonCloudWatch",
+   "usd": 3.4429
+  },
+  {
+   "day_offset": 0,
+   "service": "AmazonCloudWatch",
+   "usd": 3.4953
+  },
+  {
+   "day_offset": -13,
+   "service": "Amazon Elastic Load Balancing",
+   "usd": 5.3067
+  },
+  {
+   "day_offset": -12,
+   "service": "Amazon Elastic Load Balancing",
+   "usd": 5.5887
+  },
+  {
+   "day_offset": -11,
+   "service": "Amazon Elastic Load Balancing",
+   "usd": 5.5647
+  },
+  {
+   "day_offset": -10,
+   "service": "Amazon Elastic Load Balancing",
+   "usd": 5.717
+  },
+  {
+   "day_offset": -9,
+   "service": "Amazon Elastic Load Balancing",
+   "usd": 5.6416
+  },
+  {
+   "day_offset": -8,
+   "service": "Amazon Elastic Load Balancing",
+   "usd": 5.4052
+  },
+  {
+   "day_offset": -7,
+   "service": "Amazon Elastic Load Balancing",
+   "usd": 5.4497
+  },
+  {
+   "day_offset": -6,
+   "service": "Amazon Elastic Load Balancing",
+   "usd": 5.5742
+  },
+  {
+   "day_offset": -5,
+   "service": "Amazon Elastic Load Balancing",
+   "usd": 5.2899
+  },
+  {
+   "day_offset": -4,
+   "service": "Amazon Elastic Load Balancing",
+   "usd": 5.4831
+  },
+  {
+   "day_offset": -3,
+   "service": "Amazon Elastic Load Balancing",
+   "usd": 5.3539
+  },
+  {
+   "day_offset": -2,
+   "service": "Amazon Elastic Load Balancing",
+   "usd": 5.3315
+  },
+  {
+   "day_offset": -1,
+   "service": "Amazon Elastic Load Balancing",
+   "usd": 5.3059
+  },
+  {
+   "day_offset": 0,
+   "service": "Amazon Elastic Load Balancing",
+   "usd": 5.618
+  },
+  {
+   "day_offset": -13,
+   "service": "EC2 - Other",
+   "usd": 4.6577
+  },
+  {
+   "day_offset": -12,
+   "service": "EC2 - Other",
+   "usd": 4.7031
+  },
+  {
+   "day_offset": -11,
+   "service": "EC2 - Other",
+   "usd": 4.7581
+  },
+  {
+   "day_offset": -10,
+   "service": "EC2 - Other",
+   "usd": 4.9426
+  },
+  {
+   "day_offset": -9,
+   "service": "EC2 - Other",
+   "usd": 4.6389
+  },
+  {
+   "day_offset": -8,
+   "service": "EC2 - Other",
+   "usd": 4.7805
+  },
+  {
+   "day_offset": -7,
+   "service": "EC2 - Other",
+   "usd": 4.819
+  },
+  {
+   "day_offset": -6,
+   "service": "EC2 - Other",
+   "usd": 4.9472
+  },
+  {
+   "day_offset": -5,
+   "service": "EC2 - Other",
+   "usd": 4.9226
+  },
+  {
+   "day_offset": -4,
+   "service": "EC2 - Other",
+   "usd": 4.9398
+  },
+  {
+   "day_offset": -3,
+   "service": "EC2 - Other",
+   "usd": 4.7149
+  },
+  {
+   "day_offset": -2,
+   "service": "EC2 - Other",
+   "usd": 4.7675
+  },
+  {
+   "day_offset": -1,
+   "service": "EC2 - Other",
+   "usd": 15.9458
+  },
+  {
+   "day_offset": 0,
+   "service": "EC2 - Other",
+   "usd": 28.3475
+  }
+ ]
+}

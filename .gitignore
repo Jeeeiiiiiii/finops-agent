@@ -1,0 +1,17 @@
+# Terraform
+terraform/.terraform/
+terraform/*.tfstate
+terraform/*.tfstate.backup
+terraform/.terraform.lock.hcl
+terraform/.build/
+terraform/crash.log
+
+# Lambda package
+agent/build/
+agent/*.zip
+
+__pycache__/
+.pytest_cache/
+*.egg-info/
+.venv/
+.env

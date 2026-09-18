@@ -1,0 +1,53 @@
+{
+ "note": "EC2 - Other (NAT gateway data processing) jumps the day after a VPC endpoint was replaced by a NAT route. The S3 event is noise.",
+ "changes": [
+  {
+   "day_offset": -1,
+   "time": "13:42",
+   "event_name": "CreateNatGateway",
+   "event_source": "ec2.amazonaws.com",
+   "actor": "terraform-ci",
+   "resources": [
+    "AWS::EC2::NatGateway:nat-0a7f31c2e9b4d5e60"
+   ]
+  },
+  {
+   "day_offset": -1,
+   "time": "13:44",
+   "event_name": "CreateRoute",
+   "event_source": "ec2.amazonaws.com",
+   "actor": "terraform-ci",
+   "resources": [
+    "AWS::EC2::RouteTable:rtb-0c9e2b1a3d4f5e678"
+   ]
+  },
+  {
+   "day_offset": -1,
+   "time": "13:44",
+   "event_name": "DeleteVpcEndpoints",
+   "event_source": "ec2.amazonaws.com",
+   "actor": "terraform-ci",
+   "resources": [
+    "AWS::EC2::VPCEndpoint:vpce-0d1e2f3a4b5c6d7e8"
+   ]
+  },
+  {
+   "day_offset": -1,
+   "time": "09:10",
+   "event_name": "DescribeInstances",
+   "event_source": "ec2.amazonaws.com",
+   "actor": "monitoring",
+   "resources": []
+  },
+  {
+   "day_offset": 0,
+   "time": "02:15",
+   "event_name": "PutObject",
+   "event_source": "s3.amazonaws.com",
+   "actor": "backup-job",
+   "resources": [
+    "AWS::S3::Object:nightly/2026-09-18.tar"
+   ]
+  }
+ ]
+}

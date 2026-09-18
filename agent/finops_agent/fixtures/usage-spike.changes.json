@@ -1,0 +1,4 @@
+{
+ "note": "Lambda triples with no write calls in the trail: usage-driven, the agent should say so and not invent a change.",
+ "changes": []
+}

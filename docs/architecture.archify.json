@@ -1,0 +1,319 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "finops-agent: a cost spike, explained",
+    "quality_profile": "showcase",
+    "views": [
+      {
+        "id": "daily",
+        "label": "The daily run",
+        "focus": [
+          "daily",
+          "lambda",
+          "ce",
+          "cloudtrail",
+          "s3",
+          "slack"
+        ],
+        "note": "Pull 14 days of cost by service, detect what moved, pull write calls for the window, archive, post once. A quiet day sends nothing."
+      },
+      {
+        "id": "explain",
+        "label": "Explaining, with a floor",
+        "focus": [
+          "lambda",
+          "claude",
+          "rules",
+          "ce",
+          "cloudtrail"
+        ],
+        "note": "Claude gets the evidence, three read-only tools and a turn cap. On error, refusal or cap, the rule explainer writes the alert instead."
+      },
+      {
+        "id": "safety",
+        "label": "The safety model",
+        "focus": [
+          "lambda",
+          "secrets",
+          "claude",
+          "s3"
+        ],
+        "note": "Read costs, read the trail, write one bucket, read two secrets, log. Nothing mutates, so text the model reads cannot become an action."
+      }
+    ]
+  },
+  "components": [
+    {
+      "id": "daily",
+      "type": "cloud",
+      "label": "EventBridge · daily",
+      "sublabel": "cron(0 16 * * ? *)",
+      "pos": [
+        40,
+        240
+      ],
+      "size": [
+        170,
+        62
+      ]
+    },
+    {
+      "id": "weekly",
+      "type": "cloud",
+      "label": "EventBridge · weekly",
+      "sublabel": "cron(0 8 ? * MON *)",
+      "pos": [
+        40,
+        380
+      ],
+      "size": [
+        170,
+        62
+      ]
+    },
+    {
+      "id": "lambda",
+      "type": "backend",
+      "label": "finops-agent",
+      "sublabel": "Lambda · Python · investigate()",
+      "pos": [
+        330,
+        280
+      ],
+      "size": [
+        240,
+        66
+      ],
+      "tag": "detect · explain · dedupe · archive · notify"
+    },
+    {
+      "id": "ce",
+      "type": "cloud",
+      "label": "Cost Explorer",
+      "sublabel": "GetCostAndUsage · daily",
+      "pos": [
+        300,
+        90
+      ],
+      "size": [
+        190,
+        62
+      ]
+    },
+    {
+      "id": "cloudtrail",
+      "type": "cloud",
+      "label": "CloudTrail",
+      "sublabel": "LookupEvents · writes only",
+      "pos": [
+        600,
+        90
+      ],
+      "size": [
+        190,
+        62
+      ]
+    },
+    {
+      "id": "secrets",
+      "type": "security",
+      "label": "Secrets Manager",
+      "sublabel": "webhook url · model key",
+      "pos": [
+        40,
+        90
+      ],
+      "size": [
+        190,
+        62
+      ]
+    },
+    {
+      "id": "claude",
+      "type": "external",
+      "label": "Claude",
+      "sublabel": "claude-opus-5 · API or Bedrock",
+      "pos": [
+        1080,
+        400
+      ],
+      "size": [
+        220,
+        66
+      ],
+      "tag": "cost_timeseries · recent_changes · report_finding"
+    },
+    {
+      "id": "rules",
+      "type": "backend",
+      "label": "RuleExplainer",
+      "sublabel": "deterministic · always available",
+      "pos": [
+        330,
+        470
+      ],
+      "size": [
+        240,
+        62
+      ]
+    },
+    {
+      "id": "s3",
+      "type": "database",
+      "label": "S3 · findings",
+      "sublabel": "findings/<day>/<service>.json",
+      "pos": [
+        820,
+        110
+      ],
+      "size": [
+        190,
+        62
+      ],
+      "tag": "versioned · encrypted · private"
+    },
+    {
+      "id": "slack",
+      "type": "external",
+      "label": "Slack",
+      "sublabel": "incoming webhook",
+      "pos": [
+        1080,
+        280
+      ],
+      "size": [
+        190,
+        62
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "AWS (Floci, local)",
+      "wraps": [
+        "daily",
+        "weekly",
+        "lambda",
+        "ce",
+        "cloudtrail",
+        "secrets",
+        "rules",
+        "s3"
+      ],
+      "pad": 24
+    },
+    {
+      "kind": "security-group",
+      "label": "IAM role · read-only, plus its own bucket and two secrets",
+      "wraps": [
+        "lambda",
+        "rules"
+      ],
+      "pad": 14
+    }
+  ],
+  "connections": [
+    {
+      "from": "daily",
+      "to": "lambda",
+      "label": "{mode: daily}",
+      "variant": "emphasis",
+      "labelDy": 14
+    },
+    {
+      "from": "weekly",
+      "to": "lambda",
+      "label": "{mode: digest}",
+      "variant": "dashed"
+    },
+    {
+      "from": "lambda",
+      "to": "ce",
+      "label": "14 days, by service",
+      "variant": "emphasis",
+      "fromSide": "top",
+      "toSide": "bottom"
+    },
+    {
+      "from": "lambda",
+      "to": "cloudtrail",
+      "label": "write calls in the window",
+      "fromSide": "top",
+      "toSide": "bottom"
+    },
+    {
+      "from": "lambda",
+      "to": "secrets",
+      "label": "GetSecretValue at start",
+      "variant": "security",
+      "fromSide": "top",
+      "toSide": "bottom"
+    },
+    {
+      "from": "lambda",
+      "to": "claude",
+      "label": "evidence + 3 read-only tools",
+      "variant": "emphasis",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "from": "claude",
+      "to": "rules",
+      "label": "error · refusal · cap → fallback",
+      "variant": "dashed",
+      "fromSide": "left",
+      "toSide": "right"
+    },
+    {
+      "from": "lambda",
+      "to": "s3",
+      "label": "every finding, alerted or not",
+      "variant": "emphasis",
+      "fromSide": "right",
+      "toSide": "left",
+      "labelSegment": 1
+    },
+    {
+      "from": "lambda",
+      "to": "slack",
+      "label": "one message, if not suppressed",
+      "variant": "emphasis",
+      "fromSide": "right",
+      "toSide": "left",
+      "labelSegment": 0,
+      "labelDy": 16
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Two numbers, both must trip",
+      "items": [
+        "today > median(last 7 days) × 1.25",
+        "AND today − baseline ≥ $1",
+        "new service: no history and ≥ $1"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "The model makes it better, never decides if it exists",
+      "items": [
+        "RuleExplainer writes a full alert from the numbers",
+        "Claude wraps it: 3 tools, 8 turns, typed report",
+        "explained_by: claude · rules · claude→rules"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Read-only by construction",
+      "items": [
+        "ce:Get*, cloudtrail:LookupEvents, s3 on one bucket",
+        "secretsmanager:GetSecretValue on two ARNs",
+        "tool results are data — and there is nothing to instruct"
+      ]
+    }
+  ]
+}
