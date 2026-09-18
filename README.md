@@ -43,9 +43,11 @@ What is different is below, under *The decisions*.
 | **Scripted evidence, agentic explanation.** Detection is arithmetic (`detect.py`, pure functions, tested). The model is only asked what the evidence *means*. | Arithmetic does not hallucinate and does not cost tokens. The model's judgement is spent where judgement is needed: correlating a `CreateNatGateway` with a NAT charge, not deciding whether $28 is more than $5. |
 | **The rule explainer is the floor, not a fallback of last resort.** `RuleExplainer` produces a complete alert from the numbers and the change list. `ClaudeExplainer` wraps it and falls back to it on any failure: API error, refusal, turn cap, no typed report. | An alert that depends on a model being up is an alert that sometimes does not arrive. The model makes the message better; it never decides whether there is one. The same principle as running the raw Prometheus alert alongside an AI triage. |
 | **Read-only IAM as the safety model.** The role can read costs and the trail, write its own bucket, read its own two secrets, and log. There is no statement that can create, modify or delete anything. | The model reads CloudTrail event names and resource tags — text it does not control. With no mutating permission anywhere, prompt injection through that text cannot become an action. The system prompt says "data, not instructions"; the IAM policy makes it true. |
-| **Two adapters at every seam.** Cost: Cost Explorer or a JSON fixture. Changes: CloudTrail or a fixture. Explainer: Claude or rules. Notifier: Slack or stdout. Archive: S3 or memory. | The fixtures are how a spike is put in front of the agent on demand — you cannot wait for one to happen — and how 30 tests run with no account and no key. `python -m finops_agent` runs the whole thing in a terminal in under a second. |
+| **Two adapters at every seam.** Cost: Cost Explorer or a JSON fixture. Changes: CloudTrail or a fixture. Explainer: Claude or rules. Notifier: Slack or stdout. Archive: S3 or memory. | The fixtures are how a spike is put in front of the agent on demand — you cannot wait for one to happen — and how 38 tests run with no account and no key. `python -m finops_agent` runs the whole thing in a terminal in under a second. |
 | **Thresholds are two numbers, and both must trip.** +25% over a 7-day *median* AND at least +$1. A service with no history needs ≥ $1. | A ratio alone pages on $0.001 → $0.003 (the emulator's kind of number). A dollar floor alone pages on $1,000 → $1,010. The median, not the mean, so one earlier spike does not hide the next. All of it is configuration (`Thresholds`, Terraform `var.thresholds`), not prompt text. |
-| **Quiet by default; archive everything.** No anomaly, no message. Every finding — alerted or suppressed — lands in S3 first. A repeat within 3 days is archived but not sent. A weekly digest reads the archive. | A daily "all fine" trains people to ignore the channel. A three-day spike is one alert. The history exists whether anyone was told or not. |
+| **Quiet by default; archive everything.** No anomaly, no message. Every finding — alerted or suppressed — lands in S3 first. A repeat within 3 days of a *delivered* alert is archived but not sent. A weekly digest reads the archive. | A daily "all fine" trains people to ignore the channel. A three-day spike is one alert. The history exists whether anyone was told or not — and a failed Slack post never silences the next day, because dedupe only counts findings marked `sent`. |
+| **Investigate yesterday, not today.** The run at 16:00 UTC looks at the last complete day. | "Today" is sixteen hours of Cost Explorer-lagged spend compared with a median of seven full days; a real spike would hide behind that. `event.day` overrides it for replays. |
+| **Everything outside the process is bounded.** CloudTrail paging stops at 20 pages or 25 s; the model client has a 30 s request timeout, one retry, and a 70 s budget for the whole investigation; a change source that fails degrades to "no changes found", noted in the report. | The Lambda has 120 s. A hung dependency must leave time for the rules floor to run, and must never turn a found anomaly into a lost one. |
 | **One function, one deep interface.** `investigate(day, deps) -> Report`. The Lambda handler and the CLI are thin callers; tests call it with fakes. | Everything that matters is testable through one function. Adding a source or a notifier is a new adapter, not a change to the run. |
 
 ## What is where
@@ -65,7 +67,7 @@ agent/finops_agent/
   handler.py         Lambda entry point
   __main__.py        the CLI
   fixtures/          quiet · spike-nat · new-service · usage-spike · multi
-agent/tests/         30 tests: detection math, the run with fakes, the Claude loop with a scripted client
+agent/tests/         38 tests: detection math, the run with fakes, the Claude loop with a scripted client, bounded CloudTrail paging
 terraform/           Lambda, two EventBridge rules, S3 (versioned, encrypted, private), two secrets, the IAM policy
 scripts/             package.sh  slack-catcher.sh  demo.sh  down.sh
 docs/                architecture.html (interactive) and its archify source
@@ -80,7 +82,7 @@ run them from Git Bash or `bash scripts/...` from PowerShell.
 # 0. No account, no key, no emulator: the agent in a terminal
 cd agent
 pip install -r requirements-dev.txt
-python -m pytest -q                        # 30 passed
+python -m pytest -q                        # 38 passed
 python -m finops_agent --scenario spike-nat   # prints the Slack message it would send
 python -m finops_agent --scenario quiet       # prints nothing worth reading
 
@@ -145,8 +147,9 @@ docker logs -f finops-slack-catcher
 ## What the tests cover
 
 - `test_detect.py` — flat is quiet; ratio and floor must both trip; the median ignores an earlier spike; a new service needs the floor; missing days count as zero; biggest impact first.
-- `test_investigate.py` — the run through `investigate()` with fakes: quiet sends and archives nothing; the NAT spike is found, filtered to `ec2.amazonaws.com` events, explained, archived, sent; a repeat is archived but suppressed; the dedupe window expires; usage-driven has no changes and low confidence; multi is ordered and capped; a broken explainer does not lose the alert; the digest reads the archive.
-- `test_claude_loop.py` — the loop with a scripted client: a direct report; a tool round-trip with both results in one message; an unknown tool returned as `is_error`; API error, refusal, `end_turn` without a report, and the turn cap all fall back to rules; tool windows are clamped.
+- `test_investigate.py` — the run through `investigate()` with fakes: quiet sends and archives nothing; the NAT spike is found, filtered to `ec2.amazonaws.com` events, explained, archived, sent; a repeat is archived but suppressed; the dedupe window expires; a failed Slack send does not dedupe tomorrow; a failing change source degrades instead of failing; usage-driven has no changes and low confidence; multi is ordered and capped; a broken explainer does not lose the alert; the digest reads the archive.
+- `test_changes.py` — mapped services filter by event source; unmapped services are unfiltered, never guessed; CloudTrail paging is bounded.
+- `test_claude_loop.py` — the loop with a scripted client: a direct report; a tool round-trip with both results in one message; an unknown tool returned as `is_error`; API error, refusal, `end_turn` without a report, the turn cap and the time budget all fall back to rules; tool windows are clamped.
 - `test_notify_and_archive.py` — findings round-trip through JSON including `inf`; messages carry evidence and provenance; suppressed findings are listed separately; the digest groups by service.
 
 ## Next steps

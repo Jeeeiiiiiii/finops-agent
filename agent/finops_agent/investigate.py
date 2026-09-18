@@ -13,9 +13,11 @@ Order of operations, and why:
 3. quiet?     no anomalies -> Report with no findings, nothing sent
 4. evidence   per anomaly: the service's series + write calls in the window
 5. explain    RuleExplainer or ClaudeExplainer (which itself falls back)
-6. dedupe     archived either way; suppressed if alerted recently
+6. dedupe     archived either way; suppressed if a send succeeded recently
 7. archive    every finding lands in S3 before anything is sent
-8. notify     one message, only if something is not suppressed
+8. notify     one message, only if something is not suppressed; then the
+              sent findings are re-archived with sent=True (a failed send
+              leaves them sent=False, so tomorrow alerts again)
 """
 
 from __future__ import annotations
@@ -75,7 +77,12 @@ def investigate(day: date, deps: Deps) -> Report:
 
     for anomaly in anomalies:
         window_start = day - timedelta(days=deps.change_window_days)
-        changes = deps.changes.write_events(anomaly.service, window_start, day)
+        try:
+            changes = deps.changes.write_events(anomaly.service, window_start, day)
+        except Exception as e:  # noqa: BLE001 - the trail being unavailable must not lose the alert
+            deps.log("change source failed; continuing without changes", {"service": anomaly.service, "error": f"{type(e).__name__}: {e}"})
+            report.notes.append(f"changes unavailable for {anomaly.service}: {type(e).__name__}")
+            changes = []
         evidence = Evidence(
             anomaly=anomaly,
             series=tuple(series_for(rows, anomaly.service)),
@@ -106,8 +113,13 @@ def investigate(day: date, deps: Deps) -> Report:
         report.findings.append(finding)
 
     if report.alerted:
+        # Send, then record the send. If this raises, the findings stay
+        # sent=False in the archive and tomorrow's run alerts again.
         deps.notifier.send(format_daily(report))
         report.notified = True
+        for f in report.alerted:
+            f.sent = True
+            deps.archive.put(f)
     else:
         report.notes.append("all findings suppressed by dedupe; nothing sent")
     return report

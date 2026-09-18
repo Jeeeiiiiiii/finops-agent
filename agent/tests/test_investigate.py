@@ -65,9 +65,10 @@ def test_repeat_spike_is_archived_but_suppressed():
 
 
 def test_dedupe_window_expires():
-    # An alert two days ago: suppresses today with a 3-day window, not with a 1-day one.
+    # A delivered alert two days ago: suppresses today with a 3-day window, not with a 1-day one.
     d3, _, archive3 = deps_for("spike-nat", dedupe_days=3)
     old = investigate(TODAY, d3).findings[0]
+    assert old.sent is True  # investigate() marks delivered findings
     old.evidence = Evidence(
         Anomaly(old.service, TODAY - timedelta(days=2), 1, 1, 1, 1, "spike"), (), (), 1
     )
@@ -129,3 +130,42 @@ def test_digest_summarises_the_window():
 def test_fixture_files_exist_for_every_scenario():
     for name in ["quiet", "spike-nat", "new-service", "usage-spike", "multi"]:
         assert (Path(FIXTURES) / f"{name}.costs.json").exists(), name
+
+
+def test_failed_send_does_not_dedupe_tomorrow():
+    class Flaky:
+        def __init__(self):
+            self.calls = 0
+
+        def send(self, text):
+            self.calls += 1
+            if self.calls == 1:
+                raise RuntimeError("slack 502")
+
+    flaky = Flaky()
+    d, _, archive = deps_for("spike-nat")
+    d.notifier = flaky
+    try:
+        investigate(TODAY - timedelta(days=1), d)
+    except RuntimeError:
+        pass
+    # archived, but not marked sent -> tomorrow is not suppressed
+    stored = archive.items[(TODAY - timedelta(days=1), "ec2-other")]
+    assert stored.sent is False and stored.suppressed is False
+    report = investigate(TODAY, d)
+    assert not report.findings[0].suppressed and report.notified and flaky.calls == 2
+    assert archive.items[(TODAY, "ec2-other")].sent is True
+
+
+def test_change_source_failure_degrades_instead_of_failing():
+    class Down:
+        def write_events(self, service, start, end):
+            raise TimeoutError("LookupEvents throttled")
+
+    d, notifier, _ = deps_for("spike-nat")
+    d.changes = Down()
+    report = investigate(TODAY, d)
+    [f] = report.findings
+    assert f.evidence.changes == () and report.notified
+    assert any("changes unavailable" in n for n in report.notes)
+    assert "none found" in notifier.sent[0]

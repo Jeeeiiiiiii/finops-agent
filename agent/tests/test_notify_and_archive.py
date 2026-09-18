@@ -17,8 +17,9 @@ def finding(service="EC2 - Other", kind="spike", changes=(), suppressed=False):
 
 def test_finding_round_trips_through_json_including_inf():
     f = finding(kind="new", changes=[Change("2026-09-18T01:00:00+00:00", "CreateDomain", "es.amazonaws.com", "alice", ("AWS::OpenSearch::Domain:x",))])
+    f.sent = True
     data = json.loads(json.dumps(to_json(f)))
-    assert data["evidence"]["anomaly"]["ratio"] == "inf"
+    assert data["evidence"]["anomaly"]["ratio"] == "inf" and data["sent"] is True
     back = finding_from_json(data)
     assert back == f
 
@@ -45,6 +46,10 @@ def test_slug_and_memory_archive_dedupe():
     a = MemoryArchive()
     yesterday = finding()
     yesterday.evidence = Evidence(Anomaly("EC2 - Other", date(2026, 9, 17), 1, 1, 1, 1, "spike"), (), (), 1)
+    a.put(yesterday)
+    # archived but never delivered: does not count as "alerted"
+    assert a.recently_alerted("EC2 - Other", TODAY, 3) is None
+    yesterday.sent = True
     a.put(yesterday)
     assert a.recently_alerted("EC2 - Other", TODAY, 3) == date(2026, 9, 17)
     assert a.recently_alerted("EC2 - Other", TODAY, 0) is None

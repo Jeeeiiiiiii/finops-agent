@@ -4,8 +4,8 @@ The model is handed the evidence bundle and three tools. Two are read-only
 questions it may ask (a longer cost series, changes over a wider window); the
 third is how it hands back its answer, so the result arrives typed instead of
 as prose to parse. The loop is capped, the tools cannot change anything, and
-every failure — API error, refusal, cap hit, no report — falls back to the
-rule explainer. The alert goes out either way; the model only makes it better.
+every failure — API error, refusal, cap hit, time budget, no report — falls
+back to the rule explainer. The alert goes out either way; the model only makes it better.
 
 The same adapter serves both Claude API keys (`anthropic.Anthropic`) and
 Bedrock (`anthropic.AnthropicBedrockMantle`): they expose the same
@@ -15,6 +15,7 @@ Bedrock (`anthropic.AnthropicBedrockMantle`): they expose the same
 from __future__ import annotations
 
 import json
+import time
 from datetime import timedelta
 from typing import Any, Callable
 
@@ -94,6 +95,7 @@ class ClaudeExplainer:
         model: str = DEFAULT_MODEL,
         fallback: RuleExplainer | None = None,
         log: Callable[[str, dict[str, Any]], None] | None = None,
+        time_budget_s: float | None = None,
     ) -> None:
         self._client = client
         self._costs = costs
@@ -101,6 +103,7 @@ class ClaudeExplainer:
         self._model = model
         self._fallback = fallback or RuleExplainer()
         self._log = log or (lambda msg, fields: None)
+        self._budget = time_budget_s
 
     # ---- tools ----------------------------------------------------------- #
 
@@ -135,8 +138,12 @@ class ClaudeExplainer:
             {"role": "user", "content": "Evidence:\n" + json.dumps(to_json(evidence), indent=1)}
         ]
         tool_calls = 0
+        started = time.monotonic()
 
         for _ in range(MAX_TURNS):
+            if self._budget is not None and time.monotonic() - started > self._budget:
+                self._log("model time budget exhausted", {"budget_s": self._budget, "tool_calls": tool_calls})
+                return None
             response = self._client.messages.create(
                 model=self._model,
                 max_tokens=16000,

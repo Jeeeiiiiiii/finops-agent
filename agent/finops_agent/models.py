@@ -74,6 +74,8 @@ class Finding:
     suppressed: bool = False
     """True when the same service was already alerted within the dedupe window."""
     suppressed_reason: str = ""
+    sent: bool = False
+    """True once a notification carrying this finding was delivered. Dedupe counts only these."""
 
     @property
     def service(self) -> str:
@@ -137,4 +139,4 @@ def finding_from_json(data: dict[str, Any]) -> Finding:
     )
     ex = data["explanation"]
     explanation = Explanation(ex["cause"], ex["confidence"], ex["recommendation"], ex["explained_by"], ex.get("tool_calls", 0))
-    return Finding(evidence, explanation, data.get("suppressed", False), data.get("suppressed_reason", ""))
+    return Finding(evidence, explanation, data.get("suppressed", False), data.get("suppressed_reason", ""), data.get("sent", False))

@@ -22,7 +22,7 @@ def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(prog="finops-agent", description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--mode", choices=["daily", "digest"], default=None)
     p.add_argument("--scenario", default=None, help="fixture name under finops_agent/fixtures/")
-    p.add_argument("--day", default=None, help="YYYY-MM-DD; default today (UTC)")
+    p.add_argument("--day", default=None, help="YYYY-MM-DD to investigate; default yesterday (UTC), the last complete day")
     p.add_argument("--cost-source", choices=["ce", "fixture"], default=None)
     p.add_argument("--change-source", choices=["cloudtrail", "fixture"], default=None)
     p.add_argument("--explainer", choices=["auto", "rules", "claude"], default=None)

@@ -9,7 +9,8 @@ FN=$(terraform -chdir=terraform output -raw function_name)
 BUCKET=$(terraform -chdir=terraform output -raw findings_bucket)
 LOGS=$(terraform -chdir=terraform output -raw log_group)
 TODAY=$(date -u +%F)
-TOMORROW=$(python -c "import datetime as d; print((d.datetime.now(d.timezone.utc).date()+d.timedelta(days=1)).isoformat())")
+# The agent investigates the last complete day (yesterday) unless told otherwise.
+DAY=$(python -c "import datetime as d; print((d.datetime.now(d.timezone.utc).date()-d.timedelta(days=1)).isoformat())")
 
 hr() { echo; echo "── $1"; echo; }
 
@@ -33,14 +34,14 @@ invoke '{"mode":"daily","cost_source":"fixture","scenario":"quiet"}'
 hr "2. A NAT gateway spike: detected, correlated with the route change, archived, posted"
 invoke '{"mode":"daily","cost_source":"fixture","scenario":"spike-nat"}'
 echo "    the finding in S3:"
-$AWS s3 ls "s3://$BUCKET/findings/$TODAY/" | sed 's/^/      /'
+$AWS s3 ls "s3://$BUCKET/findings/$DAY/" | sed 's/^/      /'
 echo "    what Slack received (from the catcher):"
 sleep 1
 docker logs finops-slack-catcher 2>/dev/null | tail -n 12 | sed 's/^/      /'
 
-hr "3. The same spike tomorrow: archived again but suppressed (dedupe), nothing sent"
-invoke "{\"mode\":\"daily\",\"cost_source\":\"fixture\",\"scenario\":\"spike-nat\",\"day\":\"$TOMORROW\"}"
-echo "    (the fixture is anchored to the run day, so tomorrow sees the same spike; the archive remembers today's alert)"
+hr "3. The same spike the next day: archived again but suppressed (dedupe), nothing sent"
+invoke "{\"mode\":\"daily\",\"cost_source\":\"fixture\",\"scenario\":\"spike-nat\",\"day\":\"$TODAY\"}"
+echo "    (the fixture is anchored to the investigated day, so the next day sees the same spike; the archive remembers the delivered alert)"
 
 hr "4. A service that did not exist yesterday"
 invoke '{"mode":"daily","cost_source":"fixture","scenario":"new-service"}'
@@ -50,7 +51,7 @@ invoke '{"mode":"daily","cost_source":"fixture","scenario":"usage-spike"}'
 
 hr "6. The real cost source: Cost Explorer on the emulator (metered from the other labs)"
 invoke '{"mode":"daily","cost_source":"ce","change_source":"cloudtrail"}'
-echo "    (tiny numbers, below the \$1 floor -> no anomaly. That floor is the point.)"
+echo "    (yesterday, the last complete day; tiny numbers, below the \$1 floor -> no anomaly. That floor is the point.)"
 
 hr "7. Weekly digest from the archive"
 invoke '{"mode":"digest"}'

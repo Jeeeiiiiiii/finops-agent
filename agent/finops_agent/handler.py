@@ -17,7 +17,7 @@ logging.getLogger().setLevel(logging.INFO)
 
 def run(event: dict[str, Any] | None) -> dict[str, Any]:
     settings = Settings.from_env(event)
-    wiring = Wiring(settings, today=datetime.now(timezone.utc).date())
+    wiring = Wiring(settings, today=datetime.now(timezone.utc).date())  # investigates yesterday unless event.day
     deps = wiring.deps()
     log_event(
         "run starting",

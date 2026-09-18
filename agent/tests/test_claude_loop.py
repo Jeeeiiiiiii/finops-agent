@@ -149,3 +149,14 @@ def test_tool_windows_are_clamped():
     ClaudeExplainer(client, costs, changes).explain(ev)
     series = json.loads(client.requests[1]["messages"][2]["content"][0]["content"])
     assert len(series) <= 30
+
+
+def test_time_budget_falls_back(monkeypatch):
+    ev, costs, changes = evidence_for()
+    loop = response("tool_use", block("tool_use", id="a", name="cost_timeseries", input={"service": "EC2 - Other", "days": 3}))
+    client = FakeClient([loop] * MAX_TURNS)
+    ticks = iter([0.0, 0.0, 100.0, 100.0, 100.0])
+    import finops_agent.explain.claude as mod
+    monkeypatch.setattr(mod.time, "monotonic", lambda: next(ticks))
+    x = ClaudeExplainer(client, costs, changes, time_budget_s=5.0).explain(ev)
+    assert x.explained_by == "claude→rules" and len(client.requests) == 1

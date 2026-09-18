@@ -3,9 +3,10 @@
 Layout in the bucket:  findings/<YYYY-MM-DD>/<service-slug>.json
 
 Two questions the archive answers:
-- recently_alerted(service, days): was this service already alerted in the
-  last N days? If so today's finding is archived but suppressed, so a
-  three-day spike is one alert and not three.
+- recently_alerted(service, days): was a notification for this service
+  actually delivered in the last N days? Only findings with sent=True count,
+  so a failed Slack post never silences the next day's alert. If so today's
+  finding is archived but suppressed: a three-day spike is one alert.
 - since(days): every finding in a window, for the weekly digest.
 """
 
@@ -59,7 +60,7 @@ class S3Archive:
         for i in range(1, days + 1):
             d = day - timedelta(days=i)
             f = self._get(self._key(d, service))
-            if f is not None and not f.suppressed:
+            if f is not None and f.sent:
                 return d
         return None
 
@@ -98,7 +99,7 @@ class MemoryArchive:
         for i in range(1, days + 1):
             d = day - timedelta(days=i)
             f = self.items.get((d, slug(service)))
-            if f is not None and not f.suppressed:
+            if f is not None and f.sent:
                 return d
         return None
 

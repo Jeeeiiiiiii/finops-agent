@@ -8,14 +8,15 @@ Two adapters behind one interface:
 - FixtureChangeSource — a JSON file, for tests and demo scenarios.
 
 The mapping from a billing name ("Amazon Elastic Compute Cloud - Compute")
-to audit event sources ("ec2.amazonaws.com") is a small table plus a keyword
-fallback. It does not have to be perfect: an unmapped service still gets
-every write event in the window, just unfiltered.
+to audit event sources ("ec2.amazonaws.com") is a small exact table. An
+unmapped service gets every write event in the window, unfiltered: noisier,
+but never wrong about which service a change belongs to.
 """
 
 from __future__ import annotations
 
 import json
+import time as _clock
 from datetime import date, datetime, time, timedelta, timezone
 from pathlib import Path
 from typing import Protocol
@@ -55,13 +56,9 @@ _READ_PREFIXES = ("Describe", "List", "Get", "Lookup", "Head", "BatchGet", "Quer
 
 
 def event_sources_for(service: str) -> tuple[str, ...]:
-    if service in SERVICE_EVENT_SOURCES:
-        return SERVICE_EVENT_SOURCES[service]
-    lowered = service.lower()
-    for name, sources in SERVICE_EVENT_SOURCES.items():
-        if any(word in lowered for word in name.lower().split() if len(word) > 4):
-            return sources
-    return ()
+    """Exact table lookup only. Guessing from keywords sent every unmapped
+    service to ec2.amazonaws.com; an empty tuple means "do not filter"."""
+    return SERVICE_EVENT_SOURCES.get(service, ())
 
 
 def is_write(event_name: str) -> bool:
@@ -75,9 +72,16 @@ class ChangeSource(Protocol):
 
 
 class CloudTrailSource:
-    def __init__(self, client, max_events: int = 200) -> None:  # boto3 'cloudtrail' client
+    """LookupEvents is 2 requests/s, 50 events/page, and cannot filter by
+    source server-side. In a busy account a window can hold thousands of
+    pages, so both the page count and the wall-clock are bounded; a partial
+    answer is "what we found in the time", not the truth."""
+
+    def __init__(self, client, max_events: int = 200, max_pages: int = 20, time_budget_s: float = 25.0) -> None:
         self._ct = client
         self._max = max_events
+        self._max_pages = max_pages
+        self._budget = time_budget_s
 
     def write_events(self, service: str, start: date, end: date) -> list[Change]:
         sources = event_sources_for(service)
@@ -85,7 +89,10 @@ class CloudTrailSource:
         end_at = datetime.combine(end + timedelta(days=1), time.min, tzinfo=timezone.utc)
         out: list[Change] = []
         token: str | None = None
-        while len(out) < self._max:
+        started = _clock.monotonic()
+        pages = 0
+        while len(out) < self._max and pages < self._max_pages and _clock.monotonic() - started < self._budget:
+            pages += 1
             kwargs = dict(
                 LookupAttributes=[{"AttributeKey": "ReadOnly", "AttributeValue": "false"}],
                 StartTime=start_at,

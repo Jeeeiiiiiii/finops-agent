@@ -27,7 +27,7 @@ import json
 import logging
 import os
 from dataclasses import dataclass
-from datetime import date
+from datetime import date, timedelta
 from pathlib import Path
 from typing import Any
 
@@ -42,6 +42,11 @@ from .sources.changes import CloudTrailSource, FixtureChangeSource
 from .sources.cost import CostExplorerSource, FixtureCostSource
 
 FIXTURES = Path(__file__).parent / "fixtures"
+# Per-request ceiling for the model, and a budget for the whole investigation.
+# The Lambda has 120s; one hung request must not eat all of it, or the rules
+# fallback never gets its turn.
+MODEL_TIMEOUT_S = 30.0
+MODEL_TIME_BUDGET_S = 70.0
 log = logging.getLogger("finops")
 
 
@@ -119,7 +124,9 @@ class Wiring:
 
     def __init__(self, s: Settings, today: date) -> None:
         self.s = s
-        self.today = s.day or today
+        # Investigate the last complete day. "Today" is partial and Cost Explorer
+        # lags a few hours, so comparing it with seven full days would hide spikes.
+        self.today = s.day or (today - timedelta(days=1))
         self._clients: dict[str, Any] = {}
         self.explained_by = "rules"
         self.notifies_via = "stdout"
@@ -172,14 +179,14 @@ class Wiring:
         if self.s.model_provider == "bedrock":
             from anthropic import AnthropicBedrockMantle
 
-            client = AnthropicBedrockMantle(aws_region=self.s.region)
+            client = AnthropicBedrockMantle(aws_region=self.s.region, timeout=MODEL_TIMEOUT_S, max_retries=1)
             model = self.s.model or "anthropic.claude-opus-5"
         else:
             key = self.s.anthropic_api_key or self.secret(self.s.anthropic_secret_id)
             if key:
                 from anthropic import Anthropic
 
-                client = Anthropic(api_key=key)
+                client = Anthropic(api_key=key, timeout=MODEL_TIMEOUT_S, max_retries=1)
             model = self.s.model or "claude-opus-5"
 
         if client is None:
@@ -190,7 +197,7 @@ class Wiring:
         from .explain.claude import ClaudeExplainer
 
         self.explained_by = "claude"
-        return ClaudeExplainer(client, costs, changes, model=model, fallback=rules, log=log_event)
+        return ClaudeExplainer(client, costs, changes, model=model, fallback=rules, log=log_event, time_budget_s=MODEL_TIME_BUDGET_S)
 
     def archive(self):
         if self.s.bucket:
