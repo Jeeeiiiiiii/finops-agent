@@ -1,0 +1,452 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Engine-room Log · finops-agent</title>
+<style>
+@font-face { font-family: "EB Garamond"; src: url(/fonts/EBGaramond-var.woff2) format("woff2"); font-weight: 400 800; font-style: normal; font-display: swap; }
+@font-face { font-family: "EB Garamond"; src: url(/fonts/EBGaramond-var-italic.woff2) format("woff2"); font-weight: 400 800; font-style: italic; font-display: swap; }
+
+@font-face { font-family: "Playwrite GB S"; src: url(/fonts/PlaywriteGBS-var.woff2) format("woff2"); font-weight: 300 400; font-display: swap; }
+
+:root {
+  --hand: "Playwrite GB S", "Segoe Script", cursive;   /* the officer's pen: a slanted schoolhand; the printed stock stays in Garamond */
+  --cloth: #2A201A;          /* the binding */
+  --cloth-raised: #362A22;
+  --cloth-rule: #54443A;
+  --gilt: #D9B87A;           /* tooled lettering on the binding */
+  --cloth-text: #EADFCB;
+  --cloth-dim: #BFAE96;
+
+  --page: #E9EEE3;           /* pale green-grey ledger stock */
+  --page-shade: #DCE4D6;     /* the baseline window, lightly shaded */
+  --rule-blue: #9DBAD6;      /* printed horizontal rules */
+  --rule-red: #C9574C;       /* printed margin rules */
+  --ink: #1F2633;            /* iron-gall blue-black */
+  --ink-dim: #4E5A66;
+  --red-ink: #A8261C;        /* the officer's red: deviations and the lines they crossed */
+  --form: #F2D8D1;           /* the radio message form */
+  --form-rule: #D9A79D;
+
+  --serif: "EB Garamond", Garamond, "Times New Roman", serif;
+  --ease: cubic-bezier(.16, 1, .3, 1);
+}
+
+* { box-sizing: border-box; }
+html { background: var(--cloth); color-scheme: light; scrollbar-color: var(--cloth-rule) var(--cloth); }
+body { margin: 0; background: var(--cloth); color: var(--cloth-text); font: 400 17px/1.5 var(--serif); font-variant-numeric: lining-nums tabular-nums; -webkit-font-smoothing: antialiased; }
+::selection { background: var(--ink); color: var(--page); }
+:focus-visible { outline: 2px solid var(--gilt); outline-offset: 3px; }
+.page :focus-visible { outline-color: var(--ink); }
+button { font: inherit; color: inherit; }
+
+.wrap { max-width: 1400px; margin: 0 auto; padding: 22px 28px 44px; }
+
+/* binding: the cover band ------------------------------------------------------------- */
+.binding { display: grid; grid-template-columns: auto 1fr; gap: 6px 36px; align-items: end; padding: 6px 0 16px; border-bottom: 1px solid var(--cloth-rule); }
+.binding h1 { margin: 0; font: 600 2.6rem/1 var(--serif); letter-spacing: .02em; color: var(--gilt); font-variant: small-caps; }
+.binding .vessel { color: var(--cloth-dim); margin-top: 4px; font-style: italic; }
+.ship { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 2px 22px; color: var(--cloth-dim); }
+.ship b { color: var(--cloth-text); font-weight: 600; }
+.ship .bad b { color: #F6C9C1; }
+.lede { margin: 12px 0 0; max-width: 75ch; color: var(--cloth-dim); }
+.lede b { color: var(--cloth-text); font-weight: 600; }
+.banner { margin-top: 14px; padding: 10px 14px; border: 1px solid #A8564B; background: rgba(168, 38, 28, .18); color: #F6C9C1; border-radius: 2px; }
+.banner code { font-family: ui-monospace, Consolas, monospace; font-size: .9em; }
+
+/* voyage tabs: one per story ------------------------------------------------------------ */
+.tabs { margin-top: 14px; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
+.tab { text-align: left; border: 1px solid var(--cloth-rule); border-bottom: 0; background: var(--cloth-raised); color: var(--cloth-text); border-radius: 4px 4px 0 0; padding: 8px 14px 9px; cursor: pointer; transition: background-color .15s, color .15s, transform .14s var(--ease); }
+.tab:hover { background: #42342A; }
+.tab:active { transform: translateY(1px); }
+.tab b { display: block; font-weight: 600; font-size: 1.05rem; }
+.tab span { display: block; color: var(--cloth-dim); font-size: .92rem; line-height: 1.3; margin-top: 2px; }
+.tab[aria-pressed="true"] { background: var(--page); color: var(--ink); border-color: var(--page); }
+.tab[aria-pressed="true"] span { color: var(--ink-dim); }
+.tab[disabled] { cursor: progress; }
+
+/* the open log ------------------------------------------------------------------------------ */
+.book { background: var(--page); color: var(--ink); border-radius: 0 0 3px 3px; box-shadow: 0 18px 34px -18px rgba(0,0,0,.8); }
+.spread { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); }
+.leaf { padding: 18px 26px 26px; min-width: 0; display: flex; flex-direction: column; }
+#log { flex: 1; display: flex; flex-direction: column; }
+/* the rest of the page stays ruled: unused lines, not a void */
+.blank { flex: 1; min-height: 0; margin-top: 10px; background: repeating-linear-gradient(to bottom, transparent 0 27px, var(--rule-blue) 27px 28px); border-left: 3px double var(--rule-red); }
+.leaf + .leaf { border-left: 1px solid #C9D2C2; box-shadow: inset 12px 0 18px -16px rgba(31, 38, 51, .35); }
+.leaf h2 { margin: 0; font: 600 1.35rem/1.2 var(--serif); font-variant: small-caps; letter-spacing: .03em; }
+.leaf .sub { margin: 2px 0 10px; color: var(--ink-dim); font-style: italic; }
+.sub b { font-style: normal; color: var(--ink); font-weight: 600; }
+.empty { padding: 40px 0; color: var(--ink-dim); font-style: italic; }
+
+.gridwrap { overflow-x: auto; margin: 0 -6px; padding: 0 6px; scrollbar-color: var(--rule-blue) var(--page); }
+table.log { border-collapse: collapse; width: 100%; min-width: 620px; position: relative; }
+.log th, .log td { padding: 1px 8px; text-align: right; white-space: nowrap; border-bottom: 1px solid var(--rule-blue); }
+.log thead th { font-weight: 600; font-size: .92rem; line-height: 1.15; white-space: normal; vertical-align: bottom; border-bottom: 2px solid var(--ink); padding-bottom: 6px; }
+.log th:first-child, .log td:first-child { text-align: left; border-right: 3px double var(--rule-red); padding-right: 12px; }
+.log tbody td { position: relative; }
+.log tr.base td:not(:first-child) { background: var(--page-shade); }
+.log tr.today td { border-top: 2px solid var(--ink); border-bottom: 2px solid var(--ink); font: 400 .95rem/1.7 var(--hand); }
+.log td.dev { color: var(--red-ink); }
+.log td .ring { position: absolute; inset: -3px -2px; width: calc(100% + 4px); height: calc(100% + 6px); overflow: visible; pointer-events: none; }
+.log tfoot td { font-size: .95rem; border-bottom: 1px solid var(--rule-blue); color: var(--ink-dim); }
+.log tfoot tr:first-child td { border-top: 2px solid var(--ink); }
+.log tfoot td:first-child { font-style: italic; }
+.log tfoot .verdict td { white-space: normal; text-align: right; line-height: 1.25; font-size: .9rem; vertical-align: top; padding-top: 6px; }
+.log tfoot .verdict td.dev { color: var(--red-ink); font-weight: 700; }
+.swipe { display: none; margin: 0 0 6px; font-style: italic; color: var(--ink-dim); }
+@media (max-width: 720px) { .swipe { display: block; } }
+.legend { margin: 12px 0 0; color: var(--ink-dim); font-size: .95rem; max-width: 80ch; }
+.legend i.sw { display: inline-block; width: 22px; height: 12px; background: var(--page-shade); border: 1px solid var(--rule-blue); vertical-align: -1px; margin-right: 4px; }
+
+/* the margin: findings ---------------------------------------------------------------------- */
+.finding + .finding { margin-top: 26px; padding-top: 22px; border-top: 3px double var(--rule-red); }
+.finding h3 { margin: 0; font: 700 1.15rem/1.25 var(--serif); color: var(--ink); }
+.finding h3 span { color: var(--ink); font-weight: 600; }
+.figures { margin: 4px 0 8px; color: var(--ink-dim); }
+.figures b { color: var(--ink); }
+svg.chart { width: 100%; height: auto; display: block; margin: 6px 0 4px; overflow: visible; }
+.chart text { font: 400 13px var(--serif); fill: var(--ink-dim); font-variant-numeric: lining-nums tabular-nums; }
+.chart .lbl-red { fill: var(--red-ink); font: 400 12px var(--hand); }
+.chart .lbl-ink { fill: var(--ink); font: 400 12px var(--hand); }
+.label { display: block; margin-top: 14px; font-weight: 600; font-variant: small-caps; letter-spacing: .04em; font-size: 1.02rem; }
+.orders { list-style: none; margin: 4px 0 0; padding: 0; }
+.orders li { display: grid; grid-template-columns: 8.2em 1fr; gap: 2px 12px; padding: 5px 0; border-bottom: 1px solid var(--rule-blue); }
+.orders li.off { color: var(--ink-dim); }
+.orders .when { font-size: .95rem; }
+.orders .what b { font-weight: 700; }
+.orders .why { grid-column: 2; font-size: .92rem; font-style: italic; color: var(--ink-dim); }
+.orders li.on .why { color: var(--ink); font-style: normal; font-weight: 600; }
+.remark { margin: 6px 0 0; font: 300 .93rem/1.8 var(--hand); max-width: 62ch; }
+.remark + .remark { margin-top: 8px; }
+.remark b { font-weight: 400; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+.signed { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 6px 16px; color: var(--ink-dim); font-size: .95rem; }
+.signed b { color: var(--ink); }
+.filed { margin-top: 10px; font-size: .95rem; color: var(--ink-dim); }
+.filed code { font-family: ui-monospace, Consolas, monospace; font-size: .85em; color: var(--ink); overflow-wrap: anywhere; }
+.filed .supp { color: var(--ink); font-weight: 600; font-style: italic; }
+
+/* the radio message form ------------------------------------------------------------------- */
+/* a printed message form: title band, field boxes, ruled body */
+.radio { margin-top: 26px; background: var(--form); border: 1.5px solid var(--ink); padding: 0; }
+.radio .title { padding: 7px 12px 5px; border-bottom: 1.5px solid var(--ink); font-weight: 700; font-variant: small-caps; letter-spacing: .1em; font-size: 1.08rem; display: flex; justify-content: space-between; gap: 10px; }
+.radio .title span { font-weight: 400; letter-spacing: .04em; color: var(--ink-dim); }
+.fields { display: grid; grid-template-columns: 1fr 1fr; border-bottom: 1.5px solid var(--ink); }
+.fields div { padding: 3px 10px 5px; border-right: 1px solid var(--form-rule); border-bottom: 1px solid var(--form-rule); min-width: 0; }
+.fields div:nth-child(2n) { border-right: 0; }
+.fields div:nth-last-child(-n+2) { border-bottom: 0; }
+.fields small { display: block; font-variant: small-caps; letter-spacing: .08em; font-size: .8rem; color: var(--ink-dim); line-height: 1.3; }
+.fields span { font: 300 .9rem/1.6 var(--hand); overflow-wrap: anywhere; }
+.radio .msg { padding: 0 12px 8px; white-space: pre-wrap; overflow-wrap: anywhere; font: 300 .86rem/28px var(--hand); background: repeating-linear-gradient(to bottom, transparent 0 27px, var(--form-rule) 27px 28px); }
+/* the hand has no bold or italic: emphasis is underlined, as a pen would, never synthesized */
+.radio .msg strong { font-weight: 400; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+.radio .msg em { font-style: normal; }
+.remark, .radio, .nothing, .log tr.today td, .chart text { font-synthesis: none; }
+.radio .none { margin: 0; padding: 0 12px 8px; font: 300 .9rem/28px var(--hand); color: var(--ink-dim); background: repeating-linear-gradient(to bottom, transparent 0 27px, var(--form-rule) 27px 28px); }
+.nothing { margin: 8px 0 0; font: 400 1.45rem/1.5 var(--hand); color: var(--ink); }
+
+/* below the book: the watch log and the archive shelf ------------------------------------------- */
+.below { margin-top: 30px; display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 0 40px; }
+.below h2 { margin: 0 0 2px; font: 600 1.2rem/1.2 var(--serif); font-variant: small-caps; letter-spacing: .04em; color: var(--gilt); }
+.below .sub { margin: 0 0 10px; color: var(--cloth-dim); font-style: italic; max-width: 70ch; }
+.watch { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--cloth-rule); }
+.watch li { display: grid; grid-template-columns: 6.6em 11em 1fr; gap: 12px; padding: 6px 0; border-bottom: 1px solid var(--cloth-rule); align-items: baseline; }
+.watch .t { color: var(--cloth-dim); font-size: .95rem; }
+.watch .m { font-weight: 600; }
+.watch .f { color: var(--cloth-dim); font-size: .92rem; overflow-wrap: anywhere; }
+.shelf { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--cloth-rule); }
+.shelf li { display: grid; grid-template-columns: 7em 1fr auto; gap: 12px; padding: 6px 0; border-bottom: 1px solid var(--cloth-rule); align-items: baseline; }
+.shelf .d { color: var(--cloth-dim); }
+.shelf .n { color: var(--cloth-dim); font-size: .92rem; }
+.shelf li.fresh .s { color: var(--gilt); font-weight: 600; }
+.colophon { margin-top: 34px; padding-top: 12px; border-top: 1px solid var(--cloth-rule); color: var(--cloth-dim); max-width: 75ch; font-size: .95rem; }
+.colophon code { font-family: ui-monospace, Consolas, monospace; font-size: .88em; color: var(--cloth-text); }
+
+.running { display: inline-flex; align-items: baseline; gap: 10px; font-style: italic; color: var(--ink-dim); }
+
+@media (max-width: 1100px) {
+  .spread, .below { grid-template-columns: minmax(0, 1fr); }
+  .leaf + .leaf { border-left: 0; border-top: 3px double var(--rule-red); box-shadow: none; }
+  .below { gap: 30px; }
+  .tabs { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 720px) {
+  .wrap { padding: 18px 16px 34px; }
+  .binding { grid-template-columns: 1fr; }
+  .binding h1 { font-size: 2.1rem; }
+  .ship { justify-content: flex-start; }
+  .tabs { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .tab:last-child { grid-column: span 2; }
+  .blank { display: none; }
+  .tab { border-bottom: 1px solid var(--cloth-rule); border-radius: 4px; }
+  .tab[aria-pressed="true"] { border-color: var(--page); }
+  .book { border-radius: 3px; margin-top: 10px; }
+  .leaf { padding: 18px 16px 22px; }
+  .watch li { grid-template-columns: 5.6em 1fr; }
+  .watch .f { grid-column: 2; }
+  .orders li { grid-template-columns: 1fr; }
+  .orders .why { grid-column: 1; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="binding">
+    <div>
+      <h1>Engine-room Log</h1>
+      <div class="vessel">finops-agent · read live from the emulator</div>
+    </div>
+    <div class="ship" id="ship" aria-live="polite">Reading the ship…</div>
+  </header>
+
+  <p class="lede">Every AWS service is an engine; a day's cost is its <b>fuel burn</b>. The agent rings any engine over <b>+25% of its 7-day median and $1 more</b>, checks the <b>orders from the bridge</b> (audit-trail changes), writes a remark, files it, and radios the owners only if something is wrong. Each tab runs the deployed function; press it again to re-run.</p>
+
+  <div id="banner"></div>
+
+  <nav class="tabs" id="tabs" aria-label="Cost stories"></nav>
+
+  <main class="book" id="book">
+    <div class="spread">
+      <section class="leaf" aria-labelledby="h-log">
+        <h2 id="h-log">Daily burn by engine</h2>
+        <p class="sub" id="logsub">Choose a day above to run the agent.</p>
+        <div id="log"><p class="empty">The log is open at a blank page.</p></div>
+      </section>
+      <section class="leaf" aria-labelledby="h-remarks">
+        <h2 id="h-remarks">Remarks</h2>
+        <p class="sub" id="remsub">What the officer of the watch (the agent) made of the day.</p>
+        <div id="remarks"></div>
+        <div id="radio"></div>
+      </section>
+    </div>
+  </main>
+
+  <section class="below">
+    <div>
+      <h2>The watch</h2>
+      <p class="sub">The function's own log lines for this run, read back from CloudWatch.</p>
+      <ul class="watch" id="watch"><li><span class="t">—</span><span class="m">No run yet</span><span class="f"></span></li></ul>
+    </div>
+    <div>
+      <h2>The archive shelf</h2>
+      <p class="sub" id="shelfsub">Every finding is filed in S3 before anything is sent.</p>
+      <ul class="shelf" id="shelf"></ul>
+    </div>
+  </section>
+
+  <p class="colophon" id="colophon">Each run invokes the deployed function with a fixture scenario, the same way <code>scripts/demo.sh</code> does. The fixture is the input (a spike cannot be waited for); the verdict, remark, filed finding and radio message are the function's own output, read back from S3, CloudWatch Logs and the Slack stand-in.</p>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const usd = (n, d = 2) => "$" + Number(n).toFixed(d);
+const SHORT = {
+  "Amazon Elastic Compute Cloud - Compute": "EC2 compute", "EC2 - Other": "EC2 other", "Amazon Relational Database Service": "RDS",
+  "Amazon Simple Storage Service": "S3", "Amazon Elastic Load Balancing": "Load balancers", "AmazonCloudWatch": "CloudWatch", "AWS Lambda": "Lambda",
+};
+const short = s => SHORT[s] || s.replace(/^(Amazon|AWS)\s*/, "");
+const TITLES = { "quiet": ["A quiet day", "nothing should be sent"], "spike-nat": ["NAT gateway spike", "a route change behind it"], "new-service": ["A new engine", "no history at all"], "usage-spike": ["Usage spike", "no order explains it"], "multi": ["Several at once", "biggest first"] };
+const dayName = iso => new Date(iso + "T12:00:00Z").toLocaleDateString(undefined, { day: "numeric", month: "short", timeZone: "UTC" });
+const fmtTime = iso => iso.slice(5, 10).replace("-", "/") + " " + iso.slice(11, 16);
+
+let ship = null, run = null, current = null, busy = false;
+
+async function poll() {
+  try { ship = await (await fetch("/api/ship")).json(); renderShip(); }
+  catch (e) { $("#banner").innerHTML = `<div class="banner">The log server stopped answering (${esc(e.message)}). Restart it with <code>bash scripts/ops.sh</code>.</div>`; }
+  setTimeout(poll, 5000);
+}
+
+function renderShip() {
+  const f = ship.function, sch = ship.schedules;
+  const cron = c => c === "cron(0 16 * * ? *)" ? "daily 16:00 UTC" : c === "cron(0 8 ? * MON *)" ? "Mondays 08:00 UTC" : c;
+  $("#ship").innerHTML = f ? [
+    `<span>Function <b>${esc(f.state)}</b> · ${esc(f.runtime)}</span>`,
+    `<span>Watches <b>${sch.map(s => s.name === "daily" ? esc(cron(s.cron)) : `${esc(s.name)} ${esc(cron(s.cron))}`).join(", ")}</b></span>`,
+    `<span>Remarks by <b>${f.explainer === "auto" ? "rules (no model key)" : esc(f.explainer)}</b></span>`,
+    `<span>Files to <b>s3://${esc(ship.bucket)}</b></span>`,
+    `<span class="${ship.catcher === "running" ? "" : "bad"}">Radio <b>${ship.catcher === "running" ? "Slack stand-in up" : "stand-in " + esc(ship.catcher)}</b></span>`,
+  ].join("") : `<span class="bad">Function <b>not reachable</b></span>`;
+  $("#banner").innerHTML = ship.errors.length ? `<div class="banner">${ship.errors.map(esc).join("<br>")}<br>Is the emulator up? <code>cd ../floci-ui && docker compose up -d</code>, then <code>terraform -chdir=terraform apply</code>.</div>`
+    : ship.catcher !== "running" ? `<div class="banner">The Slack stand-in is ${esc(ship.catcher)}: runs will still be filed, but their radio message has nowhere to go. Start it with <code>bash scripts/slack-catcher.sh</code>.</div>` : "";
+  if (!$("#tabs").children.length) renderTabs();
+  renderShelf();
+}
+
+function renderTabs() {
+  $("#tabs").innerHTML = ship.scenarios.map(s => {
+    const [t, why] = TITLES[s.name] || [s.name, ""];
+    return `<button class="tab" type="button" data-s="${esc(s.name)}" aria-pressed="false" title="${esc(s.costs || "")}"><b>${esc(t)}</b><span>${esc(why)}</span></button>`;
+  }).join("");
+  $("#tabs").addEventListener("click", e => { const b = e.target.closest(".tab"); if (b) runStory(b.dataset.s); });
+}
+
+async function runStory(name) {
+  if (busy) return;
+  busy = true; current = name;
+  document.querySelectorAll(".tab").forEach(t => { t.setAttribute("aria-pressed", t.dataset.s === name); t.disabled = true; });
+  $("#logsub").innerHTML = `<span class="running">Invoking the function with “${esc(name)}”…</span>`;
+  try {
+    const r = await fetch("/api/run", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ scenario: name }) });
+    const d = await r.json(); if (!r.ok) throw new Error(d.error);
+    run = d; renderRun(true); poll1();
+  } catch (e) {
+    $("#banner").innerHTML = `<div class="banner">The run did not complete: ${esc(e.message)}</div>`;
+    $("#logsub").textContent = "The run did not complete.";
+  } finally {
+    busy = false; document.querySelectorAll(".tab").forEach(t => t.disabled = false);
+  }
+}
+async function poll1() { ship = await (await fetch("/api/ship")).json(); renderShip(); }
+
+// --- the log page --------------------------------------------------------------------------
+function verdictFor(e, t, flagged) {
+  const over = e.today - e.median;
+  if (!e.had_history) return e.today >= t.new_service_floor_usd ? ["New engine, over the $1 floor", true] : ["New, under the $1 floor", false];
+  const r = e.today > e.line_ratio, d = over >= t.min_delta_usd;
+  if (r && d) return ["Over both lines", true];
+  if (r) return [`Over +25% but only ${usd(over)} more`, false];
+  if (d) return [`${usd(over)} more but under +25%`, false];
+  return ["Normal burn", false];
+}
+
+function renderRun(fresh) {
+  const r = run, L = r.log, t = r.thresholds, S = r.summary;
+  const flagged = new Set(S.findings.map(f => f.service));   // the function's own verdict
+  const last = L.days.length - 1, baseFrom = last - t.baseline_days;
+  $("#logsub").innerHTML = `Figures: the <b>${esc(r.scenario)}</b> fixture, fed to the deployed function for <b>${dayName(S.day)}</b> (yesterday, UTC). Shaded: the ${t.baseline_days}-day median window. ${usd(S.account_total_usd)} burned across ${S.services_seen} engines; run took ${(r.ms / 1000).toFixed(1)} s.`;
+  const head = `<tr><th scope="col">Day</th>${L.engines.map(e => `<th scope="col">${esc(short(e.service))}</th>`).join("")}</tr>`;
+  const body = L.days.map((d, i) => `<tr class="${i === last ? "today" : i >= baseFrom ? "base" : ""}"><td>${dayName(d)}</td>${L.engines.map(e => {
+    const dev = i === last && flagged.has(e.service);
+    const v = e.burn[i];
+    return `<td class="${dev ? "dev" : ""}">${v ? v.toFixed(2) : "—"}${dev ? `<svg class="ring" viewBox="0 0 100 40" preserveAspectRatio="none" aria-hidden="true"><path pathLength="1" d="M10 24 C 4 8, 62 1, 92 12 C 103 20, 92 37, 52 38 C 16 39, 0 30, 13 15" fill="none" stroke="var(--red-ink)" stroke-width="1.8" vector-effect="non-scaling-stroke"/></svg>` : ""}</td>`;
+  }).join("")}</tr>`).join("");
+  const foot = `
+    <tr><td>Median, ${t.baseline_days} days</td>${L.engines.map(e => `<td>${e.had_history ? e.median.toFixed(2) : "none"}</td>`).join("")}</tr>
+    <tr><td>Line: +25%</td>${L.engines.map(e => `<td>${e.had_history ? e.line_ratio.toFixed(2) : "—"}</td>`).join("")}</tr>
+    <tr><td>Line: +$1</td>${L.engines.map(e => `<td>${e.had_history ? e.line_floor.toFixed(2) : t.new_service_floor_usd.toFixed(2)}</td>`).join("")}</tr>
+    <tr class="verdict"><td>Why</td>${L.engines.map(e => { const [txt, over] = verdictFor(e, t, flagged); const dev = over && flagged.has(e.service); return `<td class="${dev ? "dev" : ""}">${esc(txt)}</td>`; }).join("")}</tr>`;
+  $("#log").innerHTML = `<p class="swipe">${L.engines.length} engines: swipe the log sideways for all of them.</p><div class="gridwrap"><table class="log"><thead>${head}</thead><tbody>${body}</tbody><tfoot>${foot}</tfoot></table></div>
+    <p class="legend"><i class="sw"></i>baseline window. An engine is ringed only when it crosses <b>both</b> lines: the ratio alone pages on $0.001 → $0.003, the dollar floor alone pages on $1,000 → $1,010. The “Why” row applies the agent's own <code>detect.baseline_for</code> to the same input; the ring is the deployed function's verdict.</p><div class="blank" aria-hidden="true"></div>`;
+  // the blank ruling's margin rule continues the table's: measure the Day column's right edge
+  const dayCell = document.querySelector(".log tbody td"), blank = document.querySelector(".blank");
+  if (dayCell && blank) blank.style.marginLeft = `${Math.round(dayCell.getBoundingClientRect().right - $("#log").getBoundingClientRect().left - 3)}px`;
+  renderRemarks();
+  renderRadio();
+  renderWatch();
+  if (fresh) writeIn();
+}
+
+// a small chart per deviation: the series, the median, and both construction lines
+function chart(f, eng, t) {
+  const s = f.evidence.series, a = f.evidence.anomaly;
+  const W = 520, H = 170, pl = 6, pr = 108, pt = 12, pb = 26;
+  const lines = a.kind === "new" ? [t.new_service_floor_usd] : [a.baseline_usd, a.baseline_usd * (1 + t.ratio), a.baseline_usd + t.min_delta_usd];
+  const max = Math.max(...s.map(p => p.usd), ...lines) * 1.08 || 1;
+  const x = i => pl + i * (W - pl - pr) / Math.max(1, s.length - 1), y = v => pt + (H - pt - pb) * (1 - v / max);
+  const pts = s.map((p, i) => `${x(i).toFixed(1)},${y(p.usd).toFixed(1)}`).join(" ");
+  // Labels sit in the right margin; when lines crowd (a spike dwarfs the baseline) they stack 14px apart, lowest line lowest.
+  const labelY = (() => { const ys = lines.map(y), order = ys.map((v, i) => i).sort((a, b) => ys[b] - ys[a]), out = []; let floor = Infinity;
+    order.forEach(i => { const v = Math.min(ys[i] + 4, floor - 14); out[i] = v; floor = v; }); return out; })();
+  const hl = (i, cls, label, dash) => `<line x1="${pl}" x2="${W - pr + 4}" y1="${y(lines[i])}" y2="${y(lines[i])}" stroke="${cls === "lbl-red" ? "var(--red-ink)" : "var(--ink)"}" stroke-width="1" ${dash ? 'stroke-dasharray="5 4"' : ""} opacity="${cls === "lbl-red" ? 1 : .55}"/><text x="${W - pr + 8}" y="${labelY[i]}" class="${cls}">${label}</text>`;
+  const guides = a.kind === "new" ? hl(0, "lbl-red", `$1 floor`, true)
+    : hl(0, "lbl-ink", `median ${usd(lines[0])}`) + hl(1, "lbl-red", `+25% ${usd(lines[1])}`, true) + hl(2, "lbl-red", `+$1 ${usd(lines[2])}`, true);
+  const lx = x(s.length - 1), ly = y(a.today_usd);
+  const ticks = [0, Math.floor((s.length - 1) / 2), s.length - 1].map(i => `<text x="${x(i)}" y="${H - 6}" text-anchor="${i === 0 ? "start" : i === s.length - 1 ? "end" : "middle"}">${dayName(s[i].day)}</text>`).join("");
+  return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(a.service)} daily cost over ${s.length} days, ${usd(a.today_usd)} on the investigated day against a median of ${usd(a.baseline_usd)}">
+    ${guides}
+    <polyline points="${pts}" fill="none" stroke="var(--ink)" stroke-width="1.6" stroke-linejoin="round"/>
+    ${s.map((p, i) => `<circle cx="${x(i)}" cy="${y(p.usd)}" r="${i === s.length - 1 ? 3.4 : 2}" fill="${i === s.length - 1 ? "var(--red-ink)" : "var(--ink)"}"/>`).join("")}
+    <ellipse class="ring" pathLength="1" cx="${lx}" cy="${ly}" rx="13" ry="10" fill="none" stroke="var(--red-ink)" stroke-width="1.8" transform="rotate(-12 ${lx} ${ly})"/>
+    ${ticks}</svg>`;
+}
+
+function renderRemarks() {
+  const r = run, t = r.thresholds, el = $("#remarks");
+  if (!r.summary.findings.length) {
+    $("#remsub").textContent = "The officer of the watch made no entry.";
+    el.innerHTML = `<p class="nothing">Nothing to report.</p><p class="remark">No engine crossed both lines, so the agent wrote no remark, filed nothing and sent nothing. A daily “all fine” trains people to ignore the channel; silence is the decision.</p>`;
+    return;
+  }
+  $("#remsub").innerHTML = `${r.findings.length} deviation${r.findings.length > 1 ? "s" : ""}, biggest first. Each remark below is the function's own words, read back from the finding it filed.`;
+  el.innerHTML = r.findings.map(f => {
+    if (!f.evidence) return `<article class="finding"><h3>${esc(short(f.service))}</h3><p class="filed">The function reported this finding, but <code>${esc(f.key)}</code> could not be read back yet (${esc(f.missing)}). Run the day again to re-read it.</p></article>`;
+    const a = f.evidence.anomaly, ex = f.explanation, eng = r.log.engines.find(e => e.service === a.service) || { sources: [] };
+    const linked = new Set(f.evidence.changes.map(c => c.at + c.event_name));
+    const orders = r.log.orders.filter(o => o.in_window);
+    const orderList = orders.length ? orders.map(o => {
+      const on = linked.has(o.at + o.event);
+      const why = on ? `logged against this engine (${esc(o.source)})`
+        : !o.write ? "a read, not a change: reads cannot move cost"
+        : eng.sources.length && !eng.sources.includes(o.source) ? `a different engine (${esc(o.source)})`
+        : "not matched to this engine";
+      return `<li class="${on ? "on" : "off"}"><span class="when">${fmtTime(o.at)}</span><span class="what"><b>${esc(o.event)}</b> by ${esc(o.actor)}</span><span class="why">${why}</span></li>`;
+    }).join("") : `<li class="off"><span class="when">—</span><span class="what">No orders in the window.</span></li>`;
+    const ratio = a.ratio === "inf" ? "new" : `${Number(a.ratio).toFixed(1)}×`;
+    return `<article class="finding">
+      <h3>${esc(short(a.service))} <span>· ${a.kind === "new" ? "a new engine" : "a deviation"}</span></h3>
+      <p class="figures">${a.kind === "new" ? `No burn in the ${t.baseline_days}-day window, then <b>${usd(a.today_usd)}</b>.` : `Median <b>${usd(a.baseline_usd)}</b> → <b>${usd(a.today_usd)}</b> (${ratio}, <b>+${usd(a.delta_usd)}</b>).`}</p>
+      ${chart(f, eng, t)}
+      <span class="label">Orders from the bridge, ${dayName(r.log.window_from)} onward</span>
+      <ul class="orders">${orderList}</ul>
+      <span class="label">The remark</span>
+      <p class="remark">${esc(ex.cause)}</p>
+      <p class="remark"><b>Do:</b> ${esc(ex.recommendation)}</p>
+      <div class="signed"><span>Confidence <b>${esc(ex.confidence)}</b></span><span>Written by <b>${ex.explained_by === "rules" ? "the rules floor (no model)" : esc(ex.explained_by)}</b></span></div>
+      <p class="filed">Filed to <code>s3://${esc(ship?.bucket || "")}/${esc(f.key)}</code> · ${f.suppressed ? `<span class="supp">not sent: ${esc(f.suppressed_reason)}</span>` : f.sent ? "sent" : "<span class=\"supp\">not marked sent</span>"}</p>
+    </article>`;
+  }).join("");
+}
+
+const mdToHtml = s => esc(s).replace(/:warning:\s*/g, "").replace(/\*([^*\n]+)\*/g, "<strong>$1</strong>").replace(/(^|\s)_([^_\n][^\n]*?)_(?=\s|$)/g, "$1<em>$2</em>");
+function renderRadio() {
+  const r = run, el = $("#radio");
+  const at = new Date(r.at).toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit", hour12: false });
+  const form = (n, body) => `<div class="radio"><div class="title">Radio message<span>to the owners</span></div>
+    <div class="fields"><div><small>From</small><span>${esc(ship?.function?.name || "finops-agent")}</span></div><div><small>To</small><span>owners, via Slack stand-in</span></div>
+    <div><small>Time receipt</small><span>${r.summary.notified ? at : "—"}</span></div><div><small>Msg No.</small><span>${n}</span></div></div>${body}</div>`;
+  if (!r.summary.notified) {
+    el.innerHTML = form("none", `<p class="none">No message sent. ${r.summary.findings.length ? "Every finding was suppressed as a repeat." : "Nothing was wrong."}</p>`);
+    return;
+  }
+  const no = (r.request_id || "").slice(0, 8);
+  el.innerHTML = r.slack.length ? r.slack.map(m => form(esc(no), `<div class="msg">${mdToHtml(m)}</div>`)).join("")
+    : form(esc(no), `<p class="none">The function reports it sent a message, but the stand-in has not printed one (is it running?).</p>`);
+}
+
+function renderWatch() {
+  const r = run;
+  $("#watch").innerHTML = r.steps.map(s => {
+    const { ts, msg, ...rest } = s;
+    const f = Object.entries(rest).filter(([k]) => !["mode", "notifier", "bucket"].includes(k)).map(([k, v]) => `${k} ${Array.isArray(v) ? v.join(", ") || "none" : v}`).join(" · ");
+    return `<li><span class="t">${new Date(ts).toLocaleTimeString(undefined, { hour12: false })}.${String(ts % 1000).padStart(3, "0")}</span><span class="m">${esc(msg)}</span><span class="f">${esc(f)}</span></li>`;
+  }).join("") + (r.other_runs.length ? `<li><span class="t">note</span><span class="m">Other runs</span><span class="f">${r.other_runs.length} other invocation(s) logged in the same moment.</span></li>` : "");
+}
+
+function renderShelf() {
+  const a = ship.archive || [], fresh = new Set((run?.findings || []).map(f => f.key));
+  $("#shelfsub").innerHTML = `Every finding is filed in <code>s3://${esc(ship.bucket)}</code> before anything is sent. A repeat for the same engine on a later day, within ${ship.function?.thresholds.dedupe_days ?? 3} days of a <i>delivered</i> alert, is filed but not sent. Re-running the same day files again and sends again.`;
+  $("#shelf").innerHTML = a.length ? a.slice(0, 12).map(k => `<li class="${fresh.has(k.key) ? "fresh" : ""}"><span class="d">${esc(k.day)}</span><span class="s">${esc(k.service)}</span><span class="n">${fresh.has(k.key) ? "this run" : new Date(k.written).toLocaleDateString(undefined, { day: "numeric", month: "short" })}</span></li>`).join("") + (a.length > 12 ? `<li><span class="d"></span><span class="n">${a.length - 12} older sheets</span><span></span></li>` : "")
+    : `<li><span class="d">—</span><span class="n">The shelf is empty.</span><span></span></li>`;
+}
+
+// one moment: the investigated day is written in, then the officer rings it
+function writeIn() {
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const row = document.querySelector(".log tr.today");
+  row?.animate([{ clipPath: "inset(0 100% 0 0)" }, { clipPath: "inset(0 0 0 0)" }], { duration: 700, easing: "cubic-bezier(.16, 1, .3, 1)", fill: "backwards" });
+  document.querySelectorAll(".ring path, ellipse.ring").forEach((p, i) =>
+    p.animate([{ strokeDasharray: "1", strokeDashoffset: "1" }, { strokeDasharray: "1", strokeDashoffset: "0" }],
+      { duration: 520, delay: 620 + i * 90, easing: "cubic-bezier(.16, 1, .3, 1)", fill: "backwards" }));
+}
+
+(async () => {
+  await poll1().catch(() => {});
+  setTimeout(poll, 5000);
+  const s = new URLSearchParams(location.search).get("s");
+  if (s) runStory(s);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,150 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-02T00:00:00Z",
+  "title": "Design System: finops-agent Engine-room Log",
+  "extensions": {
+    "colorMeta": {
+      "cloth":         { "role": "neutral",   "displayName": "Binding Cloth",        "canonical": "#2A201A", "tonalRamp": ["#1A130F", "#2A201A", "#3E3027", "#574437", "#73604F", "#94806C", "#BBA996", "#E3D6C7"] },
+      "cloth-raised":  { "role": "neutral",   "displayName": "Raised Cloth",         "canonical": "#362A22", "tonalRamp": ["#1A130F", "#2A201A", "#362A22", "#4A3B30", "#655243", "#87735F", "#B09D88", "#DDD0C0"] },
+      "cloth-hover":   { "role": "neutral",   "displayName": "Cloth Hover",          "canonical": "#42342A", "tonalRamp": ["#1A130F", "#2A201A", "#42342A", "#574437", "#73604F", "#94806C", "#BBA996", "#E3D6C7"] },
+      "cloth-rule":    { "role": "neutral",   "displayName": "Cloth Rule",           "canonical": "#54443A", "tonalRamp": ["#1C1612", "#302620", "#54443A", "#6C5A4D", "#887565", "#A69482", "#C7B8A8", "#E8DFD5"] },
+      "gilt":          { "role": "secondary", "displayName": "Tooled Gilt",          "canonical": "#D9B87A", "tonalRamp": ["#3A2C12", "#5A4520", "#7D6231", "#A08146", "#C0A060", "#D9B87A", "#E8D2A6", "#F5EAD3"] },
+      "cloth-text":    { "role": "neutral",   "displayName": "Cloth Text",           "canonical": "#EADFCB", "tonalRamp": ["#2E2820", "#4A4236", "#6A5F50", "#8E806C", "#BFAE96", "#D6C8B1", "#EADFCB", "#F6F0E5"] },
+      "cloth-dim":     { "role": "neutral",   "displayName": "Cloth Dim",            "canonical": "#BFAE96", "tonalRamp": ["#2E2820", "#4A4236", "#6A5F50", "#8E806C", "#BFAE96", "#D6C8B1", "#EADFCB", "#F6F0E5"] },
+      "page":          { "role": "neutral",   "displayName": "Ledger Stock",         "canonical": "#E9EEE3", "tonalRamp": ["#252C22", "#3E4A3B", "#5C6A58", "#7F8D7A", "#A4B19F", "#C9D2C2", "#DCE4D6", "#E9EEE3"] },
+      "page-shade":    { "role": "neutral",   "displayName": "Baseline Shade",       "canonical": "#DCE4D6", "tonalRamp": ["#252C22", "#3E4A3B", "#5C6A58", "#7F8D7A", "#A4B19F", "#C9D2C2", "#DCE4D6", "#F2F5EE"] },
+      "rule-blue":     { "role": "neutral",   "displayName": "Printed Blue Rule",    "canonical": "#9DBAD6", "tonalRamp": ["#16283A", "#25415E", "#365C82", "#5079A3", "#7598BD", "#9DBAD6", "#C3D6E8", "#E6EFF7"] },
+      "rule-red":      { "role": "neutral",   "displayName": "Printed Margin Red",   "canonical": "#C9574C", "tonalRamp": ["#3A0F0B", "#5E1912", "#84221A", "#A8261C", "#C9574C", "#DD8A81", "#EDBDB7", "#F8E6E3"] },
+      "ink":           { "role": "neutral",   "displayName": "Iron-gall Ink",        "canonical": "#1F2633", "tonalRamp": ["#0E1218", "#1F2633", "#333D4C", "#4E5A66", "#6E7A86", "#959FA9", "#C0C7CE", "#E6E9EC"] },
+      "ink-dim":       { "role": "neutral",   "displayName": "Faded Ink",            "canonical": "#4E5A66", "tonalRamp": ["#0E1218", "#1F2633", "#333D4C", "#4E5A66", "#6E7A86", "#959FA9", "#C0C7CE", "#E6E9EC"] },
+      "red-ink":       { "role": "primary",   "displayName": "Officer's Red Ink",    "canonical": "#A8261C", "tonalRamp": ["#3A0F0B", "#5E1912", "#84221A", "#A8261C", "#C9574C", "#DD8A81", "#EDBDB7", "#F8E6E3"] },
+      "form":          { "role": "tertiary",  "displayName": "Radio Form Pink",      "canonical": "#F2D8D1", "tonalRamp": ["#3E1F19", "#66352C", "#8F5246", "#B67466", "#D9A79D", "#E8C2B9", "#F2D8D1", "#FAEFEB"] },
+      "form-rule":     { "role": "tertiary",  "displayName": "Form Rule",            "canonical": "#D9A79D", "tonalRamp": ["#3E1F19", "#66352C", "#8F5246", "#B67466", "#D9A79D", "#E8C2B9", "#F2D8D1", "#FAEFEB"] },
+      "distress-rule": { "role": "neutral",   "displayName": "Distress Rule",        "canonical": "#A8564B", "tonalRamp": ["#36140F", "#59231B", "#7E3A30", "#A8564B", "#C27B71", "#D9A29A", "#EBC8C3", "#F8EAE8"] },
+      "distress-text": { "role": "neutral",   "displayName": "Distress on the Cloth","canonical": "#F6C9C1", "tonalRamp": ["#36140F", "#59231B", "#7E3A30", "#A8564B", "#C27B71", "#DDA59C", "#F6C9C1", "#FCEDEA"] }
+    },
+    "typographyMeta": {
+      "display":      { "displayName": "Display",       "purpose": "The binding title only, gilt small caps." },
+      "headline":     { "displayName": "Headline",      "purpose": "Leaf headings on the page; watch and shelf headings on the cloth at 1.2rem in gilt." },
+      "title":        { "displayName": "Title",         "purpose": "A finding's engine heading, in ink." },
+      "body":         { "displayName": "Body",          "purpose": "All printed prose and figures; lining tabular figures page-wide." },
+      "label":        { "displayName": "Label",         "purpose": "Small-caps labels inside a finding; the radio form title band and field labels use the same voice." },
+      "column-head":  { "displayName": "Column Head",   "purpose": "Engine names over the log." },
+      "hand-entry":   { "displayName": "Hand: Entry",   "purpose": "The investigated day's row." },
+      "hand-remark":  { "displayName": "Hand: Remark",  "purpose": "The officer's cause and Do: lines, max 62ch." },
+      "hand-form":    { "displayName": "Hand: Form",    "purpose": "Radio message body on 28px ruled lines; field values at .9rem." },
+      "hand-verdict": { "displayName": "Hand: Verdict", "purpose": "\"Nothing to report.\" on a quiet day." }
+    },
+    "shadows": [
+      { "name": "book-on-cloth", "value": "0 18px 34px -18px rgba(0,0,0,.8)", "purpose": "The open log lifting off the binding. The only drop shadow." },
+      { "name": "spread-fold", "value": "inset 12px 0 18px -16px rgba(31,38,51,.35)", "purpose": "The fold along the second leaf's left edge, with a 1px #C9D2C2 gutter line; side-by-side layout only." }
+    ],
+    "motion": [
+      { "name": "ease-pen", "value": "cubic-bezier(.16, 1, .3, 1)", "purpose": "The write-in and the ring draw; tab press." },
+      { "name": "write-in", "value": "clip-path inset(0 100% 0 0) to inset(0 0 0 0), 700ms, fill backwards", "purpose": "The investigated day's row written in left to right, via the Web Animations API." },
+      { "name": "ring-draw", "value": "stroke-dashoffset 1 to 0, 520ms, delay 620ms + 90ms per ring, fill backwards", "purpose": "The officer rings each deviating figure and chart point; nothing held after the end." },
+      { "name": "state", "value": "150ms background-color, color; 140ms transform", "purpose": "Tab hover and 1px press." },
+      { "name": "reduced-motion", "value": "skip", "purpose": "prefers-reduced-motion shows the resting state." }
+    ],
+    "breakpoints": [
+      { "name": "stack", "value": "1100px" },
+      { "name": "narrow", "value": "720px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Voyage Tab",
+      "kind": "button",
+      "refersTo": "voyage-tab",
+      "description": "One tab per cost story; the pressed tab is cut from the page stock and joins the book.",
+      "html": "<div class=\"ds-tabs\"><button class=\"ds-tab\" aria-pressed=\"false\"><b>A quiet day</b><span>nothing should be sent</span></button><button class=\"ds-tab\" aria-pressed=\"true\"><b>NAT gateway spike</b><span>a route change behind it</span></button></div>",
+      "css": ".ds-tabs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; background: var(--cloth, #2A201A); padding: 14px 14px 0; } .ds-tab { text-align: left; font: 400 17px/1.5 \"EB Garamond\", Garamond, \"Times New Roman\", serif; border: 1px solid var(--cloth-rule, #54443A); border-bottom: 0; background: var(--cloth-raised, #362A22); color: var(--cloth-text, #EADFCB); border-radius: 4px 4px 0 0; padding: 8px 14px 9px; cursor: pointer; transition: background-color .15s, color .15s, transform .14s cubic-bezier(.16, 1, .3, 1); } .ds-tab:hover { background: #42342A; } .ds-tab:active { transform: translateY(1px); } .ds-tab:focus-visible { outline: 2px solid var(--gilt, #D9B87A); outline-offset: 3px; } .ds-tab b { display: block; font-weight: 600; font-size: 1.05rem; } .ds-tab span { display: block; color: var(--cloth-dim, #BFAE96); font-size: .92rem; line-height: 1.3; margin-top: 2px; } .ds-tab[aria-pressed=\"true\"] { background: var(--page, #E9EEE3); color: var(--ink, #1F2633); border-color: var(--page, #E9EEE3); } .ds-tab[aria-pressed=\"true\"] span { color: var(--ink-dim, #4E5A66); }"
+    },
+    {
+      "name": "Log Table",
+      "kind": "custom",
+      "refersTo": "log-row-today",
+      "description": "Day rows by engine columns with the baseline window shaded, the investigated day in the hand, and the deviating figure ringed in red ink.",
+      "html": "<div class=\"ds-page\"><table class=\"ds-log\"><thead><tr><th>Day</th><th>EC2 other</th><th>S3</th></tr></thead><tbody><tr class=\"ds-base\"><td>24 Sept</td><td>4.10</td><td>1.22</td></tr><tr class=\"ds-base\"><td>25 Sept</td><td>4.06</td><td>1.25</td></tr><tr class=\"ds-today\"><td>26 Sept</td><td class=\"ds-dev\">19.84<svg class=\"ds-ring\" viewBox=\"0 0 100 40\" preserveAspectRatio=\"none\" aria-hidden=\"true\"><path d=\"M10 24 C 4 8, 62 1, 92 12 C 103 20, 92 37, 52 38 C 16 39, 0 30, 13 15\" fill=\"none\" stroke=\"#A8261C\" stroke-width=\"1.8\" vector-effect=\"non-scaling-stroke\"/></svg></td><td>1.24</td></tr></tbody><tfoot><tr><td>Median, 7 days</td><td>4.08</td><td>1.23</td></tr><tr class=\"ds-verdict\"><td>Why</td><td class=\"ds-dev\">Over both lines</td><td>Normal burn</td></tr></tfoot></table></div>",
+      "css": ".ds-page { background: var(--page, #E9EEE3); color: var(--ink, #1F2633); padding: 18px 26px 26px; font: 400 17px/1.5 \"EB Garamond\", Garamond, \"Times New Roman\", serif; font-variant-numeric: lining-nums tabular-nums; } .ds-log { border-collapse: collapse; width: 100%; } .ds-log th, .ds-log td { padding: 1px 8px; text-align: right; white-space: nowrap; border-bottom: 1px solid var(--rule-blue, #9DBAD6); position: relative; } .ds-log thead th { font-weight: 600; font-size: .92rem; line-height: 1.15; vertical-align: bottom; border-bottom: 2px solid var(--ink, #1F2633); padding-bottom: 6px; } .ds-log th:first-child, .ds-log td:first-child { text-align: left; border-right: 3px double var(--rule-red, #C9574C); padding-right: 12px; } .ds-base td:not(:first-child) { background: var(--page-shade, #DCE4D6); } .ds-today td { border-top: 2px solid var(--ink, #1F2633); border-bottom: 2px solid var(--ink, #1F2633); font: 400 .95rem/1.7 \"Playwrite GB S\", \"Segoe Script\", cursive; font-synthesis: none; } .ds-dev { color: var(--red-ink, #A8261C); } .ds-ring { position: absolute; inset: -3px -2px; width: calc(100% + 4px); height: calc(100% + 6px); overflow: visible; pointer-events: none; } .ds-log tfoot td { font-size: .95rem; color: var(--ink-dim, #4E5A66); } .ds-log tfoot tr:first-child td { border-top: 2px solid var(--ink, #1F2633); } .ds-log tfoot td:first-child { font-style: italic; } .ds-verdict td { font-size: .9rem; } .ds-verdict td.ds-dev { color: var(--red-ink, #A8261C); font-weight: 700; }"
+    },
+    {
+      "name": "Remark",
+      "kind": "custom",
+      "refersTo": "remark",
+      "description": "The officer's remark in the hand; emphasis is a 1px underline, never bold.",
+      "html": "<div class=\"ds-page\"><span class=\"ds-label\">The remark</span><p class=\"ds-remark\">EC2 other burned $19.84 against a median of $4.08; a route change sent traffic through the NAT gateway.</p><p class=\"ds-remark\"><b>Do:</b> check the route table change at 09:12 and move S3 traffic to a gateway endpoint.</p><div class=\"ds-signed\"><span>Confidence <b>high</b></span><span>Written by <b>the rules floor (no model)</b></span></div></div>",
+      "css": ".ds-page { background: var(--page, #E9EEE3); color: var(--ink, #1F2633); padding: 18px 26px 26px; font: 400 17px/1.5 \"EB Garamond\", Garamond, \"Times New Roman\", serif; } .ds-label { display: block; font-weight: 600; font-variant: small-caps; letter-spacing: .04em; font-size: 1.02rem; } .ds-remark { margin: 6px 0 0; font: 300 .93rem/1.8 \"Playwrite GB S\", \"Segoe Script\", cursive; max-width: 62ch; font-synthesis: none; } .ds-remark b { font-weight: 400; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; } .ds-signed { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 6px 16px; color: var(--ink-dim, #4E5A66); font-size: .95rem; } .ds-signed b { color: var(--ink, #1F2633); }"
+    },
+    {
+      "name": "Radio Message Form",
+      "kind": "card",
+      "refersTo": "radio-form",
+      "description": "A printed message form for what was sent to the owners: title band, four field boxes, ruled body in the hand, square ink border, no shadow.",
+      "html": "<div class=\"ds-radio\"><div class=\"ds-radio-title\">Radio message<span>to the owners</span></div><div class=\"ds-fields\"><div><small>From</small><span>finops-agent</span></div><div><small>To</small><span>owners, via Slack stand-in</span></div><div><small>Time receipt</small><span>16:00</span></div><div><small>Msg No.</small><span>3f9a21c0</span></div></div><div class=\"ds-msg\">Cost anomaly: <strong>EC2 other</strong> $19.84 vs median $4.08 (+$15.76).\nLikely cause: route change at 09:12.</div></div>",
+      "css": ".ds-radio { background: var(--form, #F2D8D1); color: var(--ink, #1F2633); border: 1.5px solid var(--ink, #1F2633); border-radius: 0; font: 400 17px/1.5 \"EB Garamond\", Garamond, \"Times New Roman\", serif; } .ds-radio-title { padding: 7px 12px 5px; border-bottom: 1.5px solid var(--ink, #1F2633); font-weight: 700; font-variant: small-caps; letter-spacing: .1em; font-size: 1.08rem; display: flex; justify-content: space-between; gap: 10px; } .ds-radio-title span { font-weight: 400; letter-spacing: .04em; color: var(--ink-dim, #4E5A66); } .ds-fields { display: grid; grid-template-columns: 1fr 1fr; border-bottom: 1.5px solid var(--ink, #1F2633); } .ds-fields div { padding: 3px 10px 5px; border-right: 1px solid var(--form-rule, #D9A79D); border-bottom: 1px solid var(--form-rule, #D9A79D); min-width: 0; } .ds-fields div:nth-child(2n) { border-right: 0; } .ds-fields div:nth-last-child(-n+2) { border-bottom: 0; } .ds-fields small { display: block; font-variant: small-caps; letter-spacing: .08em; font-size: .8rem; color: var(--ink-dim, #4E5A66); line-height: 1.3; } .ds-fields span { font: 300 .9rem/1.6 \"Playwrite GB S\", \"Segoe Script\", cursive; font-synthesis: none; } .ds-msg { padding: 0 12px 8px; white-space: pre-wrap; font: 300 .86rem/28px \"Playwrite GB S\", \"Segoe Script\", cursive; font-synthesis: none; background: repeating-linear-gradient(to bottom, transparent 0 27px, var(--form-rule, #D9A79D) 27px 28px); } .ds-msg strong { font-weight: 400; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }"
+    },
+    {
+      "name": "Nothing to Report",
+      "kind": "custom",
+      "refersTo": "remark",
+      "description": "A quiet day's written verdict: silence as a result.",
+      "html": "<div class=\"ds-page\"><p class=\"ds-nothing\">Nothing to report.</p><p class=\"ds-remark\">No engine crossed both lines, so the agent wrote no remark, filed nothing and sent nothing.</p></div>",
+      "css": ".ds-page { background: var(--page, #E9EEE3); color: var(--ink, #1F2633); padding: 18px 26px 26px; } .ds-nothing { margin: 8px 0 0; font: 400 1.45rem/1.5 \"Playwrite GB S\", \"Segoe Script\", cursive; font-synthesis: none; } .ds-remark { margin: 6px 0 0; font: 300 .93rem/1.8 \"Playwrite GB S\", \"Segoe Script\", cursive; max-width: 62ch; font-synthesis: none; }"
+    },
+    {
+      "name": "Archive Shelf",
+      "kind": "nav",
+      "refersTo": "voyage-tab",
+      "description": "Dated log sheets ruled on the cloth; this run's sheet in gilt.",
+      "html": "<div class=\"ds-cloth\"><h2>The archive shelf</h2><ul class=\"ds-shelf\"><li class=\"ds-fresh\"><span class=\"d\">2026-09-26</span><span class=\"s\">EC2 - Other</span><span class=\"n\">this run</span></li><li><span class=\"d\">2026-09-24</span><span class=\"s\">AWS Lambda</span><span class=\"n\">24 Sept</span></li></ul></div>",
+      "css": ".ds-cloth { background: var(--cloth, #2A201A); color: var(--cloth-text, #EADFCB); padding: 16px 20px; font: 400 17px/1.5 \"EB Garamond\", Garamond, \"Times New Roman\", serif; font-variant-numeric: lining-nums tabular-nums; } .ds-cloth h2 { margin: 0 0 8px; font: 600 1.2rem/1.2 \"EB Garamond\", Garamond, serif; font-variant: small-caps; letter-spacing: .04em; color: var(--gilt, #D9B87A); } .ds-shelf { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--cloth-rule, #54443A); } .ds-shelf li { display: grid; grid-template-columns: 7em 1fr auto; gap: 12px; padding: 6px 0; border-bottom: 1px solid var(--cloth-rule, #54443A); align-items: baseline; } .ds-shelf .d { color: var(--cloth-dim, #BFAE96); } .ds-shelf .n { color: var(--cloth-dim, #BFAE96); font-size: .92rem; } .ds-fresh .s { color: var(--gilt, #D9B87A); font-weight: 600; }"
+    },
+    {
+      "name": "Distress Banner",
+      "kind": "custom",
+      "refersTo": "distress-banner",
+      "description": "Instrument failure on the binding, with the recovery command.",
+      "html": "<div class=\"ds-cloth\"><div class=\"ds-banner\">The log server stopped answering. Restart it with <code>bash scripts/ops.sh</code>.</div></div>",
+      "css": ".ds-cloth { background: var(--cloth, #2A201A); padding: 16px 20px; font: 400 17px/1.5 \"EB Garamond\", Garamond, \"Times New Roman\", serif; } .ds-banner { padding: 10px 14px; border: 1px solid #A8564B; background: rgba(168, 38, 28, .18); color: #F6C9C1; border-radius: 2px; } .ds-banner code { font-family: ui-monospace, Consolas, monospace; font-size: .9em; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Engine-room Log",
+    "overview": "The account is a ship and every AWS service is an engine; each day's cost is that engine's fuel burn, entered in an engine-room logbook. The book lies open on a dark brown cloth binding: pale green-grey ledger stock printed with blue horizontal rules and a red double margin rule, carrying day rows by engine columns, the investigated day written in by hand at the bottom. When an engine deviates, the officer rings the figure in red ink and draws the two threshold lines in red on its chart. Beside the log, in the wide right leaf, hang the orders from the bridge (audit-trail changes), the officer's remark in the hand, and a printed radio-message form for what went to the owners, or \"Nothing to report\" on a quiet day. Below the book, on the cloth, sit the watch (the function's own log lines) and the archive shelf of dated log sheets.\n\nThe page is a working record, dense and printed. Two voices carry the whole hierarchy: the printed stock (EB Garamond with lining tabular figures and small caps) for everything the book was printed with or that the page itself states, and the officer's hand (Playwrite GB S) for what was written into it on the day. Red is ink, not decoration: it appears only where the officer marked a deviation. Motion is one moment: the day is written in, then ringed.\n\nThis world is its own: distinct from rag-lab's wire desk (canary teletype strips on a green-black blotter, blue pencil), order-lab's split-flap departures board (black board, gold flap ink, condensed signage) and mesh-lab's grey-blue bench instrument. It refuses the category default of a cost dashboard with line charts and an alerts table.",
+    "keyCharacteristics": [
+      "A dark brown cloth binding carrying one open ledger spread of pale green-grey stock (1.25fr log leaf, 1fr remarks leaf).",
+      "Printed blue horizontal rules at a 28px pitch and a 3px red double margin rule; unused page continues as blank ruling, never a void.",
+      "Two voices: Garamond for the printed stock, Playwrite GB S for the officer's hand.",
+      "Red ink only where a deviation was marked: the ring, the threshold lines and labels, the deviating figure, the \"Over both lines\" cell, plus the printed red margin rule.",
+      "The radio message is a printed form: title band, four field boxes, ruled body, square ink border, no shadow.",
+      "One motion moment: the day's row is written in, then the ring draws. The resting state is always complete."
+    ],
+    "rules": [
+      { "name": "The Officer's Ink Rule", "body": "Red ink marks only what the officer marked: the ring, the threshold lines and their labels, the deviating figure, the deviating verdict cell. Finding headings, \"logged against this engine\" notes and remarks are ink. If a red mark could not have been made by the officer ringing a deviation, it is not red ink.", "section": "colors" },
+      { "name": "The Function's Verdict Rule", "body": "The ring goes where the deployed function's summary.findings says, never where the page's own arithmetic would put it. The foot's \"Why\" row explains with the agent's detect.baseline_for; it does not decide.", "section": "colors" },
+      { "name": "The Printed Versus Written Rule", "body": "Margin red (rule-red) and blue rules are printed on the stock and always present; red ink (red-ink) is written and appears only on a deviation. Never swap them.", "section": "colors" },
+      { "name": "The Two Voices Rule", "body": "Printed or written, never mixed: anything the book was printed with or the page explains is Garamond; anything the officer entered on the day (the day's row, the remark, chart line labels, \"Nothing to report\", the radio form's field values and body) is the hand.", "section": "typography" },
+      { "name": "The Pen Has No Bold Rule", "body": "The hand ships no bold or italic files and font-synthesis is off for every hand-set element. Emphasis in the hand is a 1px underline at a 3px offset, as a pen would make it; italics in the hand are set upright.", "section": "typography" },
+      { "name": "The Tabular Stock Rule", "body": "Every Garamond figure is lining and tabular, so columns of burn never jitter.", "section": "typography" },
+      { "name": "The Printed Form Rule", "body": "The radio form is printed on the page: a square 1.5px ink border and no shadow. It never floats as a card.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do set printed matter in EB Garamond with lining tabular figures and small-caps headings, and day-written entries in the hand.",
+      "Do emphasise in the hand with a 1px underline at a 3px offset, with font-synthesis off.",
+      "Do place the ring from the function's findings, and draw both threshold lines in red ink on every deviation chart.",
+      "Do continue unused page as blank ruling at the 28px pitch with the margin aligned to the Day column.",
+      "Do give a quiet day its own written verdict (\"Nothing to report.\") and an empty radio form that says why.",
+      "Do end motion on the visible resting state; never leave a mark that only appears through animation."
+    ],
+    "donts": [
+      "Don't use red ink for headings, notes, links, emphasis or anything the officer did not mark as a deviation.",
+      "Don't confuse printed margin red (rule-red) with the officer's red ink (red-ink).",
+      "Don't synthesize bold or italic in the hand.",
+      "Don't give the radio form a shadow, radius or card treatment; it is printed on the page.",
+      "Don't cast shadows from anything on the page; only the book lifts off the cloth.",
+      "Don't let the page's own arithmetic ring a figure.",
+      "Don't fall back to a cost dashboard of line charts and an alerts table."
+    ]
+  }
+}

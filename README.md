@@ -106,6 +106,24 @@ bash scripts/demo.sh
 bash scripts/down.sh
 ```
 
+### The engine-room log
+
+```bash
+bash scripts/ops.sh          # after step 3; open http://localhost:8096
+```
+
+A live page for the five cost stories. Each tab invokes the deployed
+function with that fixture, then reads back what the run left: the 14-day
+log of burn per service with the 7-day median and both threshold lines
+(`+25%` and `+$1`) under every column, the deviating cell ringed, a chart of
+the series with the lines drawn on it, the audit-trail changes in the window
+(and why each one was or was not tied to the service, using the agent's own
+`event_sources_for` and `is_write`), the remark and who wrote it, the S3 key
+it was filed under, the message the Slack stand-in received, and the
+function's own log lines. A quiet day shows as "nothing to report". `?s=<scenario>`
+runs a story on load. The invoke is a single attempt: a client retry runs
+the agent twice and sends the alert twice (see below).
+
 `scripts/demo.sh` runs eight steps: a quiet day (nothing sent); the NAT
 gateway spike (detected, correlated with `CreateNatGateway` / `CreateRoute` /
 `DeleteVpcEndpoints` by `terraform-ci` the day before, archived to S3, posted
@@ -175,4 +193,5 @@ The gaps, stated here rather than left to be found:
 2. **CloudTrail on the emulator is empty.** `LookupEvents` works and returns nothing, because nothing writes a trail locally. The fixture change source carries the audit events for each scenario.
 3. **The Claude path is verified with a scripted client, not a live call.** No API key was available when this was built. The loop, the tool round-trip, the fallbacks and the request shape are covered by tests; a real run is one environment variable away (above).
 4. **Bedrock is a stub locally.** Floci's `bedrock-runtime` returns a fixed string and no tool use, so `model_provider = "bedrock"` is for a real account only.
-5. **Static credentials.** Everything is `test`/`test` on the emulator. In AWS the Lambda's execution role is the identity; nothing in the code changes.
+5. **The agent is not idempotent under a retried invoke.** Found while building the ops page: a boto3 `invoke` with default retries ran the function twice in the same second on a cold start, and both runs archived and posted, because dedupe reads the archive before either has written. The ops page invokes with one attempt. In AWS, EventBridge's async invocation retries the same way on a function error; a per-day lock (an S3 conditional put on `runs/<day>`) would close it.
+6. **Static credentials.** Everything is `test`/`test` on the emulator. In AWS the Lambda's execution role is the identity; nothing in the code changes.
